@@ -9,7 +9,7 @@ services:
     volumes:
       - ./:/var/www
     environment:
-      - PHP_IDE_CONFIG=serverName=questionnaire.d
+      - PHP_IDE_CONFIG=serverName=payment-system.d
       - DB_PORT=3306
       - DB_HOST=database
       - host=localhost
@@ -24,7 +24,7 @@ services:
     links:
       - app
     ports:
-      - 8091:80
+      - 8092:80
 
   composer:
     restart: 'no'
@@ -44,7 +44,7 @@ services:
       - MYSQL_PASSWORD=secret
       - MYSQL_ROOT_PASSWORD=secret
     ports:
-        - "33062:3306"
+        - "33063:3306"
 
 volumes:
   db:
