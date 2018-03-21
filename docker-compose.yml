@@ -1,0 +1,50 @@
+version: '2'
+services:
+
+  app:
+    build:
+      context: ./
+      dockerfile: app.docker
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    environment:
+      - PHP_IDE_CONFIG=serverName=questionnaire.d
+      - DB_PORT=3306
+      - DB_HOST=database
+      - host=localhost
+
+  web:
+    build:
+      context: ./
+      dockerfile: web.docker
+    working_dir: /var/www
+    volumes_from:
+      - app
+    links:
+      - app
+    ports:
+      - 8091:80
+
+  composer:
+    restart: 'no'
+    image: composer
+    command: install
+    volumes_from:
+      - app
+    working_dir: /var/www
+
+  database:
+    image: mysql:5.7
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=payment_system
+      - MYSQL_USER=payment_system
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=secret
+    ports:
+        - "33062:3306"
+
+volumes:
+  db:
