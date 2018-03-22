@@ -23,7 +23,9 @@ class UserController extends Controller
 			$secret = str_random(3);
 
 			$user = new User();
-			$user->create($request->all())->generatePurse($secret)->save();
+			$user->create($request->all())
+                ->generatePurse($secret)
+                ->save();
 		}
 		catch (\Exception $exception)
 		{

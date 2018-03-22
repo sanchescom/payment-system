@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Traits\PrivateAttributes;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class User extends Model
 {
+    use PrivateAttributes;
+
 	protected $fillable = [
 		'country',
 		'city',
@@ -30,18 +33,19 @@ class User extends Model
 		'purse',
 	];
 
-	private $name;
-	private $currency;
-	private $purse;
+	protected $private = [
+	    'name',
+        'currency',
+        'purse',
+    ];
 
 
 	public function create(array $attributes = []): User
 	{
-		$instance = new self();
-		$instance->fill($attributes);
-		$instance->setAttribute('name', $attributes['name']);
-		$instance->setAttribute('currency', $attributes['currency']);
-		$instance->save();
+		$this->fill($attributes);
+        $this->setAttribute('name', $attributes['name']);
+        $this->setAttribute('currency', $attributes['currency']);
+        $this->save();
 
 		return $this;
 	}
@@ -58,7 +62,4 @@ class User extends Model
 
 		return $this;
 	}
-
-
-
 }
