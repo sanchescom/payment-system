@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Entities\Secret;
 use App\User;
-use Illuminate\Foundation\Testing\HttpException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class UserController extends Controller
 {
@@ -15,17 +16,14 @@ class UserController extends Controller
 			'name'    => 'required|max:255',
 			'country' => 'required|max:2',
 			'city'    => 'required|max:200',
-			'currency'=> 'required|max:3',
+            'currency'=> 'required|max:3',
+            'email'   => 'required|max:255',
 		]);
 
 		try
 		{
-			$secret = str_random(3);
-
-			$user = new User();
-			$user->create($request->all())
-                ->generatePurse($secret)
-                ->save();
+			$secret = Secret::create();
+			$user   = User::createWithSecret($request->all(), $secret);
 		}
 		catch (\Exception $exception)
 		{
@@ -33,8 +31,14 @@ class UserController extends Controller
 		}
 
 		return response()->json([
-			'user'    => $user->toArray(),
-			'secret'  => $secret,
+			'user'   => $user->toArray(),
+			'secret' => $secret->getCode(),
 		], Response::HTTP_OK);
 	}
+
+
+	public function checkPurse(Request $request)
+    {
+
+    }
 }

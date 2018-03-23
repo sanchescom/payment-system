@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\Traits\PrivateAttributes;
+use App\Entities\Secret;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -12,15 +12,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $name
  * @property string $country
  * @property string $city
- * @property string $purse
+ * @property string $email
  * @property int $currency
+ * @property string secret
  *
  * @package App
  */
-class User extends Model
+class User extends BaseModel
 {
-    use PrivateAttributes;
-
 	protected $fillable = [
 		'country',
 		'city',
@@ -30,36 +29,36 @@ class User extends Model
 		'name',
 		'currency',
 		'amount',
-		'purse',
+		'email',
 	];
 
-	protected $private = [
-	    'name',
-        'currency',
-        'purse',
+	protected $hidden = [
+	    'secret',
     ];
 
 
-	public function create(array $attributes = []): User
+    /**
+     * @param array $attributes
+     * @param Secret $secret
+     * @return User
+     */
+    public static function createWithSecret(array $attributes = [], Secret $secret): User
 	{
-		$this->fill($attributes);
-        $this->setAttribute('name', $attributes['name']);
-        $this->setAttribute('currency', $attributes['currency']);
-        $this->save();
+		$instance = new self();
+		$instance->secret = $secret->getHash();
+		$instance->forceFill($attributes);
+		$instance->save();
 
-		return $this;
+		return $instance;
 	}
 
 
-	public function generatePurse(string $secret): User
-	{
-		$this->purse = encrypt(implode('-', [
-			$this->id,
-			$this->name,
-			$this->currency,
-			$secret,
-		]));
-
-		return $this;
-	}
+    /**
+     * @param $email
+     * @return User|\Illuminate\Database\Eloquent\Builder|Model
+     */
+    public static function findByEmail($email)
+    {
+        return self::query()->where('email', $email)->first();
+    }
 }

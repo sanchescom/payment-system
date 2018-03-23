@@ -107,6 +107,10 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+
+    'purse_key' => 'Yn8IqeiPH',
+    'purse_cipher' => 'AES-128-ECB',
+
     /*
     |--------------------------------------------------------------------------
     | Logging Configuration
@@ -176,7 +180,6 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-
     ],
 
     /*
@@ -194,7 +197,7 @@ return [
 
         'App' => Illuminate\Support\Facades\App::class,
         'Artisan' => Illuminate\Support\Facades\Artisan::class,
-        'Auth' => Illuminate\Support\Facades\Auth::class,
+        'SimpleAuth' => Illuminate\Support\Facades\Auth::class,
         'Blade' => Illuminate\Support\Facades\Blade::class,
         'Broadcast' => Illuminate\Support\Facades\Broadcast::class,
         'Bus' => Illuminate\Support\Facades\Bus::class,
