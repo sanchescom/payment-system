@@ -46,4 +46,10 @@ class Payment extends BaseModel
     {
         return new PaymentsCollection($models);
     }
+
+
+    public function setProcessingStatus()
+    {
+        $this->status = self::PROCESSING_STATUS;
+    }
 }

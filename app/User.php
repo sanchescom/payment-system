@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $city
  * @property string $email
  * @property string $currency
+ * @property int $amount
  * @property string secret
  *
  * @package App
@@ -34,6 +35,7 @@ class User extends BaseModel
 
 	protected $hidden = [
 	    'secret',
+        'reserved',
     ];
 
 
@@ -60,5 +62,35 @@ class User extends BaseModel
     public static function findByEmail($email)
     {
         return self::query()->where('email', $email)->first();
+    }
+
+
+    /**
+     * Mutator for converting from float to integer
+     * It is saving resources of date base to save information in integer instead of double
+     *
+     * @return float|int
+     */
+    public function getAmountAttribute()
+    {
+        return $this->amount / 100;
+    }
+
+
+    /**
+     * Mutator for converting from integer to float
+     *
+     * @param $value
+     * @return void
+     */
+    public function setAmountAttribute($value)
+    {
+        $this->amount = $value * 100;
+    }
+
+
+    public function increaseReserved($reserved)
+    {
+        $this->increment('reserved', $reserved * 100);
     }
 }
