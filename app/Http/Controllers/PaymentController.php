@@ -34,6 +34,7 @@ class PaymentController extends BaseController
         {
             $payment = new Payment();
             $payment->fill($request->all());
+            $payment->setDate(Carbon::now()->toDateString());
             $payment->setProcessingStatus();
             $payment->setSpendDirection();
             $payment->save();
@@ -60,8 +61,8 @@ class PaymentController extends BaseController
         try
         {
             $payment = new Payment();
-            $payment->date = Carbon::now()->toDateString();
             $payment->fill($request->all());
+            $payment->setDate(Carbon::now()->toDateString());
             $payment->setProcessingStatus();
             $payment->setIncomeDirection();
             $payment->save();

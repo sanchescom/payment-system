@@ -82,4 +82,10 @@ class Payment extends BaseModel
     {
         $this->type = self::SPEND_DIRECTION;
     }
+
+
+    public function setDate($date)
+    {
+        $this->date = $date;
+    }
 }
