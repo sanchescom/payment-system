@@ -3,6 +3,7 @@
 namespace App;
 use App\Collections\PaymentsCollection;
 use App\Http\Controllers\PaymentController;
+use Carbon\Carbon;
 
 /**
  * Class Payment
@@ -11,11 +12,13 @@ use App\Http\Controllers\PaymentController;
  * @property string $payee
  * @property string $currency
  * @property int $amount
- * @property int $user_id
+ * @property string $payer
  * @property int $status
  * @property int $type
+ * @property Carbon $date
  *
- * @property User $user
+ * @property User $payee_user
+ * @property User $payer_user
  *
  * @package App
  */
@@ -28,25 +31,32 @@ class Payment extends BaseModel
     const INCOME_DIRECTION = 1;
     const SPEND_DIRECTION = 2;
 
-    const MONEY_INCOME_PAYMENT_MESSAGE = "";
-
     protected $fillable = [
         'payee',
         'currency',
         'amount',
-        "type",
         'direction',
     ];
 
     protected $guarded = [
-        'user_id',
+        'payer',
         'status'
     ];
 
+    protected $dates = [
+        'date'
+    ];
 
-    public function user()
+
+    public function payee_user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'payee', 'email');
+    }
+
+
+    public function payer_user()
+    {
+        return $this->belongsTo(User::class, 'payer', 'email');
     }
 
 
@@ -62,14 +72,14 @@ class Payment extends BaseModel
     }
 
 
-    public function setIncomeType()
+    public function setIncomeDirection()
     {
-        $this->type = self::INCOME_TYPE;
+        $this->type = self::INCOME_DIRECTION;
     }
 
 
-    public function setSpendType()
+    public function setSpendDirection()
     {
-        $this->type = self::SPEND_TYPE;
+        $this->type = self::SPEND_DIRECTION;
     }
 }

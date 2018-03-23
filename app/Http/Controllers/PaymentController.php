@@ -33,11 +33,9 @@ class PaymentController extends BaseController
         try
         {
             $payment = new Payment();
-
-            $payment->user()->associate($user);
             $payment->fill($request->all());
             $payment->setProcessingStatus();
-            $payment->setSpendType();
+            $payment->setSpendDirection();
             $payment->save();
 
             $user->increaseReserved($reserved);
@@ -61,7 +59,14 @@ class PaymentController extends BaseController
 
         try
         {
+            $payment = new Payment();
+            $payment->date = Carbon::now()->toDateString();
+            $payment->fill($request->all());
+            $payment->setProcessingStatus();
+            $payment->setIncomeDirection();
+            $payment->save();
 
+            PaymentProcess::dispatch($payment);
         }
         catch (\Exception $exception)
         {

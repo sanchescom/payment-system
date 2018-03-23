@@ -35,10 +35,4 @@ class UserController extends Controller
 			'secret' => $secret->getCode(),
 		], Response::HTTP_OK);
 	}
-
-
-	public function checkPurse(Request $request)
-    {
-
-    }
 }
