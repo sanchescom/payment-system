@@ -37,6 +37,7 @@ class PaymentController extends BaseController
             $payment->user()->associate($user);
             $payment->fill($request->all());
             $payment->setProcessingStatus();
+            $payment->setSpendType();
             $payment->save();
 
             $user->increaseReserved($reserved);
@@ -67,8 +68,7 @@ class PaymentController extends BaseController
             throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Unsuccessful recharging', $exception);
         }
 
-        return response()->json([
-        ], Response::HTTP_OK);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
 

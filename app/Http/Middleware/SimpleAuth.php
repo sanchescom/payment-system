@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Entities\AuthUser;
+use App\Http\Controllers\BaseController;
 use App\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -36,7 +37,7 @@ class SimpleAuth
 			throw new AccessDeniedHttpException('Access denied');
 		}
 
-		AuthUser::$user = $user;
+        BaseController::setUser($user);
 
 		return $next($request);
 	}

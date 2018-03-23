@@ -12,7 +12,8 @@ use App\Http\Controllers\PaymentController;
  * @property string $currency
  * @property int $amount
  * @property int $user_id
- * @property string $status
+ * @property int $status
+ * @property int $type
  *
  * @property User $user
  *
@@ -24,10 +25,17 @@ class Payment extends BaseModel
     const SUCCESSFUL_STATUS = 2;
     const FAILED_STATUS = 3;
 
+    const INCOME_DIRECTION = 1;
+    const SPEND_DIRECTION = 2;
+
+    const MONEY_INCOME_PAYMENT_MESSAGE = "";
+
     protected $fillable = [
         'payee',
         'currency',
         'amount',
+        "type",
+        'direction',
     ];
 
     protected $guarded = [
@@ -51,5 +59,17 @@ class Payment extends BaseModel
     public function setProcessingStatus()
     {
         $this->status = self::PROCESSING_STATUS;
+    }
+
+
+    public function setIncomeType()
+    {
+        $this->type = self::INCOME_TYPE;
+    }
+
+
+    public function setSpendType()
+    {
+        $this->type = self::SPEND_TYPE;
     }
 }

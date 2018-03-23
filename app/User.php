@@ -73,7 +73,16 @@ class User extends BaseModel
      */
     public function getAmountAttribute()
     {
-        return $this->amount / 100;
+        $amount = $this->getAttribute('amount');
+
+        if ($amount > 0)
+        {
+            return $amount / 100;
+        }
+        else
+        {
+            return $amount;
+        }
     }
 
 
@@ -85,7 +94,7 @@ class User extends BaseModel
      */
     public function setAmountAttribute($value)
     {
-        $this->amount = $value * 100;
+        $this->setAttribute('amount', $value * 100);
     }
 
 

@@ -17,6 +17,8 @@ class CurrencyConverter
 
         $day = $date->format('Y-m-d');
 
+        $rate = 0.1;
+
 //        if (isset(self::$cached[$day]) && !empty(self::$cached[$day]))
 //        {
 //            $rate = self::$cached[$day];
@@ -41,6 +43,6 @@ class CurrencyConverter
 //            }
 //        }
 //
-//        return $value / $rate;
+        return $value / $rate;
     }
 }

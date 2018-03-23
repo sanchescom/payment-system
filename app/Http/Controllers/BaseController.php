@@ -7,11 +7,20 @@ use App\User;
 
 class BaseController extends Controller
 {
+    private static $user;
+
+
     /**
      * @return User
      */
     protected function getCurrentUser()
     {
-        return AuthUser::$user;
+        return self::$user;
+    }
+
+
+    public static function setUser($user)
+    {
+        self::$user = $user;
     }
 }

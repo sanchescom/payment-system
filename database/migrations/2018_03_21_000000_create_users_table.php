@@ -19,7 +19,8 @@ class CreateUsersTable extends Migration
 	        $table->char('country', 2);
 	        $table->string('city', 200);
             $table->string('email', 255)->unique();
-	        $table->char('currency', 3);
+            $table->char('currency', 3);
+            $table->char('secret', 32);
 	        $table->integer('amount')->default(0);
 	        $table->dateTime('created_at');
 	        $table->dateTime('updated_at');
