@@ -1,24 +1,49 @@
 <?php
 
 namespace App;
+use App\Collections\PaymentsCollection;
+use App\Http\Controllers\PaymentController;
 
-class Payment
+/**
+ * Class Payment
+ *
+ * @property int $id
+ * @property string $payee
+ * @property string $currency
+ * @property int $amount
+ * @property int $user_id
+ * @property string $status
+ *
+ * @property User $user
+ *
+ * @package App
+ */
+class Payment extends BaseModel
 {
+    const PROCESSING_STATUS = 1;
+    const SUCCESSFUL_STATUS = 2;
+    const FAILED_STATUS = 3;
+
     protected $fillable = [
         'payee',
-        'payer',
         'currency',
         'amount',
     ];
 
     protected $guarded = [
-        'name',
-        'currency',
-        'amount',
-        'email',
+        'user_id',
+        'status'
     ];
 
-    protected $hidden = [
-        'secret',
-    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+
+    public function newCollection(array $models = [])
+    {
+        return new PaymentsCollection($models);
+    }
 }

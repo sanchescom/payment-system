@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $country
  * @property string $city
  * @property string $email
- * @property int $currency
+ * @property string $currency
  * @property string secret
  *
  * @package App

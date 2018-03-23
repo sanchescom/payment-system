@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Entities\Secret;
+use App\Jobs\PaymentProcess;
+use App\Payment;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -20,7 +22,12 @@ class PaymentController extends BaseController
 
         try
         {
-            \Queue::push();
+            $payment = new Payment();
+            $payment->user_id = $user->id;
+            $payment->fill($request->all());
+
+
+            PaymentProcess::dispatch();
         }
         catch (\Exception $exception)
         {
@@ -28,6 +35,7 @@ class PaymentController extends BaseController
         }
 
         return response()->json([
+            'data' => $payment->toArray(),
         ], Response::HTTP_OK);
     }
 
