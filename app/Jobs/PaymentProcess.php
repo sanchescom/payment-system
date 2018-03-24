@@ -28,6 +28,6 @@ class PaymentProcess implements ShouldQueue
 
     public function handle(CurrencyConverter $converter)
     {
-
+        $amount = $this->payment->amount;
     }
 }

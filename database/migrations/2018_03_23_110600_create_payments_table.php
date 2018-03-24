@@ -15,12 +15,12 @@ class CreatePaymentsTable extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->increments('id');
-            $table->date('date');
+            $table->date('date')->index();
             $table->string('payer')->nullable()->index();
             $table->string('payee')->index();
             $table->integer('amount');
             $table->smallInteger('type');
-            $table->smallInteger('status');
+            $table->smallInteger('status')->index();
             $table->char('currency', 3);
             $table->dateTime('created_at');
             $table->dateTime('updated_at');

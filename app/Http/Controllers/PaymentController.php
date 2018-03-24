@@ -100,7 +100,7 @@ class PaymentController extends BaseController
     {
         $this->validate($request, [
             'payee'    => 'required|max:255|exists:users,email',
-            'amount'   => 'required|max:4',
+            'amount'   => 'required|numeric',
             'currency' => 'max:3',
         ]);
     }
