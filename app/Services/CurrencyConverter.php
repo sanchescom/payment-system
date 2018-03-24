@@ -7,7 +7,6 @@ use Carbon\Carbon;
 
 class CurrencyConverter
 {
-
     public function convert(Carbon $date, $currency, $value)
     {
         if ($currency === Currency::DEFAULT_CURRENCY)

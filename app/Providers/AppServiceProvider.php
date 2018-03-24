@@ -27,5 +27,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind('CurrencyConverter', function () {
             return new CurrencyConverter();
         });
+
+        if ($this->app->environment() !== 'production') {
+            $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
+        }
     }
 }
