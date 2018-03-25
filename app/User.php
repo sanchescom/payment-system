@@ -16,7 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $email
  * @property string $currency
  * @property int $amount
- * @property string secret
+ * @property string $secret
+ * @property string $account
  *
  * @package App
  */
@@ -116,5 +117,16 @@ class User extends BaseModel
     public function getSecret()
     {
         return $this->getAttribute('secret');
+    }
+
+
+    public function getData()
+    {
+        return [
+            'id'       => $this->id,
+            'name'     => $this->name,
+            'currency' => $this->currency,
+            'account'  => $this->getAccount(),
+        ];
     }
 }

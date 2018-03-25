@@ -19,11 +19,14 @@ class CreatePaymentsTable extends Migration
             $table->string('payer')->nullable()->index();
             $table->string('payee')->index();
             $table->integer('amount');
+            $table->integer('native')->nullable();
+            $table->integer('default')->nullable();
             $table->smallInteger('type');
             $table->smallInteger('status')->index();
             $table->char('currency', 3);
             $table->dateTime('created_at');
             $table->dateTime('updated_at');
+            $table->index(['payer', 'payee', 'date']);
         });
     }
 

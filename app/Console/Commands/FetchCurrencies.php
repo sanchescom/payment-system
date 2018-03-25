@@ -2,11 +2,17 @@
 
 namespace App\Console\Commands;
 
-use App\Currency;
 use App\Repositories\UserRepository;
 use App\Services\CurrencyCollector;
 use Illuminate\Console\Command;
 
+/**
+ * This
+ *
+ * Class FetchCurrencies
+ *
+ * @package App\Console\Commands
+ */
 class FetchCurrencies extends Command
 {
     protected $signature = 'fetch:currencies';

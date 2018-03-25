@@ -1,8 +1,8 @@
 <?php
 
 namespace App;
+
 use App\Collections\PaymentsCollection;
-use App\Http\Controllers\PaymentController;
 use Carbon\Carbon;
 
 /**
@@ -11,11 +11,13 @@ use Carbon\Carbon;
  * @property int $id
  * @property string $payee
  * @property string $currency
- * @property int $amount
+ * @property double $amount
  * @property string $payer
  * @property int $status
  * @property int $type
  * @property Carbon $date
+ * @property double $native
+ * @property double $default
  *
  * @package App
  */
@@ -35,9 +37,12 @@ class Payment extends BaseModel
     ];
 
     protected $guarded = [
+        'type',
         'payer',
         'status',
         'direction',
+        'native',
+        'default',
     ];
 
     protected $dates = [
@@ -84,5 +89,41 @@ class Payment extends BaseModel
     public function setPayer($payer)
     {
         $this->payer = $payer;
+    }
+
+
+    public function setNative($native)
+    {
+        $this->native = $native;
+    }
+
+
+    public function setDefault($default)
+    {
+        $this->default = $default;
+    }
+
+
+    public function getNativeAttribute()
+    {
+        return $this->attributeGetterConverterIntegerToDouble('native');
+    }
+
+
+    public function setNativeAttribute($value)
+    {
+        $this->attributeSetterConverterDoubleToInteger('native', $value);
+    }
+
+
+    public function getDefaultAttribute()
+    {
+        return $this->attributeGetterConverterIntegerToDouble('default');
+    }
+
+
+    public function setDefaultAttribute($value)
+    {
+        $this->attributeSetterConverterDoubleToInteger('default', $value);
     }
 }

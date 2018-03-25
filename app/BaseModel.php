@@ -18,7 +18,25 @@ class BaseModel extends \Eloquent
      */
     public function getAmountAttribute()
     {
-        $amount = $this->attributes['amount'];
+        return $this->attributeGetterConverterIntegerToDouble('amount');
+    }
+
+
+    /**
+     * Mutator for converting from integer to float
+     *
+     * @param $value
+     * @return void
+     */
+    public function setAmountAttribute($value)
+    {
+        $this->attributeSetterConverterDoubleToInteger('amount', $value);
+    }
+
+
+    protected function attributeGetterConverterIntegerToDouble($attribute)
+    {
+        $amount = $this->attributes[$attribute];
 
         if ($amount > 0)
         {
@@ -31,17 +49,11 @@ class BaseModel extends \Eloquent
     }
 
 
-    /**
-     * Mutator for converting from integer to float
-     *
-     * @param $value
-     * @return void
-     */
-    public function setAmountAttribute($value)
+    protected function attributeSetterConverterDoubleToInteger($attribute, $value)
     {
         $attributes = $this->attributes;
 
-        $attributes['amount'] = $value * 100;
+        $attributes[$attribute] = $value * 100;
 
         $this->attributes = $attributes;
     }

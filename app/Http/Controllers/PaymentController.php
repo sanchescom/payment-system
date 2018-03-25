@@ -7,6 +7,7 @@ use App\Exceptions\SystemErrorException;
 use App\Jobs\PaymentIncome;
 use App\Jobs\PaymentSpend;
 use App\Payment;
+use App\Repositories\PaymentRepository;
 use App\Services\AccountProcessor;
 use App\Services\CurrencyConverter;
 use App\User;
@@ -16,7 +17,7 @@ use Illuminate\Http\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class PaymentController extends BaseController
+class PaymentController extends Controller
 {
     public function transfer(Request $request, CurrencyConverter $converter, AccountProcessor $processor)
     {
@@ -29,13 +30,14 @@ class PaymentController extends BaseController
         $payee    = $request->get('payee');
 
         $this->validate($request, [
-            'currency' => 'in:' . $user->currency . ',' . $processor->getCurrency($payee)
+            'currency' => 'in:' . $user->currency . ',' . $processor->getCurrency($payee),
+            'payee'    => 'not_in:' . $user->getAccount(),
         ]);
 
-        $amount = $converter->convert(Carbon::now(), $currency . "/" . $user->currency, $amount);
+        $converted = $converter->convert(Carbon::now(), $currency . "/" . $user->currency, $amount);
 
-        $this->checkSecret($request, $user);
-        $this->checkFounds($amount, $user);
+//        $this->checkSecret($request, $user);
+        $this->checkFounds($converted, $user);
 
         try
         {
@@ -47,7 +49,7 @@ class PaymentController extends BaseController
             $payment->setSpendDirection();
             $payment->save();
 
-            $user->decreaseAmount($amount);
+            $user->decreaseAmount($converted);
 
             PaymentSpend::dispatch($payment);
         }
@@ -83,6 +85,40 @@ class PaymentController extends BaseController
         }
 
         return response()->json(null, Response::HTTP_NO_CONTENT);
+    }
+
+
+    public function operations(Request $request)
+    {
+        $this->validate($request, [
+            'account'   => 'required|max:14',
+            'from_date' => 'date',
+            'to_date'   => 'date',
+        ]);
+
+        try
+        {
+            $account   = $request->get('account');
+            $from_date = $request->get('from_date');
+            $to_date   = $request->get('to_date');
+
+            $user      = User::findByAccount($account);
+            $payments  = PaymentRepository::getForUserByPeriod($user, $from_date, $to_date);
+
+            $sum = PaymentRepository::getSumForUserByPeriodGroupedByCurrencies($user, $from_date, $to_date);
+        }
+        catch (\Exception $exception)
+        {
+            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Problem with viewing list operations', $exception);
+        }
+
+        return response()->json([
+            'data' => $payments->toArray(),
+            'meat' => [
+                'user' => $user->getData(),
+                'sum'  => $sum,
+            ],
+        ], Response::HTTP_OK);
     }
 
 

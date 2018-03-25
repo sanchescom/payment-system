@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Entities\Secret;
 use App\Events\CreateUser;
+use App\Repositories\UserRepository;
 use App\Services\AccountProcessor;
 use App\User;
 use Illuminate\Http\Request;
@@ -40,4 +41,21 @@ class UserController extends Controller
             'account'=> $account,
 		], Response::HTTP_OK);
 	}
+
+
+	public function users()
+    {
+        try
+        {
+            $user = UserRepository::getUsers();
+        }
+        catch (\Exception $exception)
+        {
+            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Getting users error', $exception);
+        }
+
+        return response()->json([
+            'user'   => $user->toArray(),
+        ], Response::HTTP_OK);
+    }
 }

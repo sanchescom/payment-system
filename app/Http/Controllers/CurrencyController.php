@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class CurrencyController extends BaseController
+class CurrencyController extends Controller
 {
     public function upload(Request $request)
     {
