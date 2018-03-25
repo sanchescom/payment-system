@@ -22,6 +22,9 @@ class FetchCurrencies extends Command
     }
 
 
+    /**
+     * Handler for fetching currencies of user which call every day
+     */
     public function handle()
     {
         $currencies = UserRepository::getUsersCurrencies();

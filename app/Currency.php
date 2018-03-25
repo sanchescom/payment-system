@@ -11,6 +11,8 @@ use Carbon\Carbon;
  * @property float $rate
  * @property string $currency
  *
+ * @method static Currency firstOrNew(array $attributes, array $values = [])
+ *
  * @package App
  */
 class Currency extends BaseModel
@@ -21,5 +23,11 @@ class Currency extends BaseModel
         'date',
         'rate',
         'currency',
+    ];
+
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'date',
     ];
 }

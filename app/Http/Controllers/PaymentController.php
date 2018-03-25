@@ -22,16 +22,23 @@ class PaymentController extends BaseController
     {
         $this->validatePayment($request);
 
-        $currency = $request->get('currency');
-        $amount   = $request->get('amount');
-        $account  = $request->get('account');
-
-        $reserved = $converter->convert(Carbon::now(), $currency, $processor->getCurrency($account), $amount);
-
         $user = $this->getCurrentUser();
 
+        $currency = $request->get('currency');
+        $amount   = $request->get('amount');
+        $payee    = $request->get('payee');
+
+        $this->validate($request, [
+            'currency' => 'in:' . $user->currency . ',' . $processor->getCurrency($payee)
+        ]);
+
+        if ($user->currency != $currency)
+        {
+            $amount = $converter->convert(Carbon::now(), $currency . "/" . $currency, $amount);
+        }
+
         $this->checkSecret($request, $user);
-        $this->checkFounds($reserved, $user);
+        $this->checkFounds($amount, $user);
 
         try
         {
@@ -43,7 +50,7 @@ class PaymentController extends BaseController
             $payment->setSpendDirection();
             $payment->save();
 
-            $user->decreaseAmount($reserved);
+            $user->decreaseAmount($amount);
 
             PaymentSpend::dispatch($payment);
         }
@@ -84,16 +91,16 @@ class PaymentController extends BaseController
 
     private function checkSecret(Request $request, User $user)
     {
-        if (Secret::hash($request->get('secret')) !== $user->secret)
+        if (Secret::hash($request->get('secret')) !== $user->getSecret())
         {
             throw new AccessDeniedHttpException('Access denied');
         }
     }
 
 
-    private function checkFounds($reserved, User $user)
+    private function checkFounds($amount, User $user)
     {
-        if ($reserved > $user->amount)
+        if ($amount > $user->amount)
         {
             throw new SystemErrorException('Insufficient funds');
         }

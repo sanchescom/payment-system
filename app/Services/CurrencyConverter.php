@@ -3,48 +3,25 @@
 namespace App\Services;
 
 use App\Currency;
+use App\Repositories\CurrencyRepository;
 use Carbon\Carbon;
 use Exchanger\CurrencyPair;
 use Illuminate\Database\Eloquent\Collection;
 
 class CurrencyConverter
 {
-    public function convertDefault(Carbon $date, $currency, $value)
+    public function convert(Carbon $date, $pair, $value)
     {
-        if ($currency === Currency::DEFAULT_CURRENCY)
+        if ($value == 0)
         {
             return $value;
         }
 
-        /**
-         * @var Currency $actual_currency
-         */
-        $actual_currency = Currency::query()->firstOrNew([
-            'date'     => $date->format('Y-m-d'),
-            'currency' => $currency,
-        ]);
-
-        if (!$actual_currency->rate)
-        {
-            $actual_currency->rate = \Swap::historical($currency . '/' . Currency::DEFAULT_CURRENCY, $date)->getValue();
-            $actual_currency->save();
-        }
-
-        return $value / $actual_currency->rate;
-    }
-
-
-    public function convert(Carbon $date, $pair, $value)
-    {
         $currency_pair  = CurrencyPair::createFromString($pair);
         $currency_array = [
             $currency_pair->getBaseCurrency(),
             $currency_pair->getQuoteCurrency(),
         ];
-
-        // "USD/RUR" 2
-        // "RUR/USD" 2000
-        // "RUB/UAH" 900
 
         $currency = null;
 
@@ -59,10 +36,7 @@ class CurrencyConverter
 
         if ($currency)
         {
-            /**
-             * @var Currency $actual_currency
-             */
-            $actual_currency = Currency::query()->firstOrNew([
+            $actual_currency = Currency::firstOrNew([
                 'date'     => $date->format('Y-m-d'),
                 'currency' => $currency,
             ]);
@@ -87,11 +61,7 @@ class CurrencyConverter
             /**
              * @var Currency[]|Collection $actual_currencies
              */
-            $actual_currencies = Currency::query()
-                ->where('date', $date->format('Y-m-d'))
-                ->whereIn('currency', $currency_array)
-                ->get()
-                ->keyBy('currency');
+            $actual_currencies = CurrencyRepository::getCurrenciesRangeOnDate($currency_array, $date);
 
             if ($actual_currencies->count() < count($currency_array))
             {
@@ -100,15 +70,25 @@ class CurrencyConverter
                     if (empty($actual_currencies[$currency_item]))
                     {
                         $actual_currencies->offsetSet($currency_item, Currency::create([
-                            'date'     => $date->format('Y-m-d'),
+                            'date'     => $date,
                             'currency' => $currency_item,
-                            'rate'     => \Swap::historical(Currency::DEFAULT_CURRENCY . '/' . $currency_item, $date)->getValue()
+                            'rate'     => $this->fetchRateOnDate($currency_item, $date)
                         ]));
                     }
                 }
             }
 
+            $base_rate  = $actual_currencies[$currency_pair->getBaseCurrency()]->rate;
+            $quote_rate = $actual_currencies[$currency_pair->getQuoteCurrency()]->rate;
 
+
+            return ($value / $base_rate) * $quote_rate;
         }
+    }
+
+
+    private function fetchRateOnDate($currency, $date)
+    {
+        return \Swap::historical(Currency::DEFAULT_CURRENCY . '/' . $currency, $date)->getValue();
     }
 }
