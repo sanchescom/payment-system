@@ -2,12 +2,17 @@
 
 namespace App\Collections;
 
-use App\Services\CurrencyConverter;
-
 class PaymentsCollection extends BaseCollection
 {
     public function getNativeAndDefaultSum()
     {
-        return $this->toArray();
+        $native_sum   = $this->first()['native_sum'];
+        $default_sum = $this->first()['default_sum'];
+
+
+        return [
+            'native' => $native_sum > 0 ? $native_sum / 100 : 0,
+            'default' => $default_sum > 0 ? $default_sum / 100 : 0,
+        ];
     }
 }

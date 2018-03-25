@@ -53,8 +53,7 @@ class PaymentRepository
         ]);
 
         return $builder
-            ->groupBy('currency')
-            ->selectRaw('sum(converted) as converted_sum, sum(native) as native_sum')
+            ->selectRaw('SUM(`default`) AS default_sum, SUM(`native`) AS native_sum')
             ->get();
     }
 

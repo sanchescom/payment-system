@@ -36,7 +36,7 @@ class PaymentController extends Controller
 
         $converted = $converter->convert(Carbon::now(), $currency . "/" . $user->currency, $amount);
 
-//        $this->checkSecret($request, $user);
+        $this->checkSecret($request, $user);
         $this->checkFounds($converted, $user);
 
         try
@@ -105,7 +105,7 @@ class PaymentController extends Controller
             $user      = User::findByAccount($account);
             $payments  = PaymentRepository::getForUserByPeriod($user, $from_date, $to_date);
 
-            $sum = PaymentRepository::getSumForUserByPeriodGroupedByCurrencies($user, $from_date, $to_date);
+            $sum = PaymentRepository::getSumForUserByPeriodGroupedByCurrencies($user, $from_date, $to_date)->getNativeAndDefaultSum();
         }
         catch (\Exception $exception)
         {
