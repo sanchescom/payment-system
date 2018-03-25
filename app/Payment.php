@@ -17,9 +17,6 @@ use Carbon\Carbon;
  * @property int $type
  * @property Carbon $date
  *
- * @property User $payee_user
- * @property User $payer_user
- *
  * @package App
  */
 class Payment extends BaseModel
@@ -46,18 +43,6 @@ class Payment extends BaseModel
     protected $dates = [
         'date'
     ];
-
-
-    public function payee_user()
-    {
-        return $this->belongsTo(User::class, 'payee', 'email');
-    }
-
-
-    public function payer_user()
-    {
-        return $this->belongsTo(User::class, 'payer', 'email');
-    }
 
 
     public function newCollection(array $models = [])

@@ -55,6 +55,16 @@ class User extends BaseModel
     }
 
 
+    /**
+     * @param $account
+     * @return User|\Illuminate\Database\Eloquent\Builder|Model
+     */
+    public static function findByAccount($account)
+    {
+        return self::query()->where('account', $account)->first();
+    }
+
+
     public function increaseAmount($amount)
     {
         $this->amount = $this->amount + $amount;

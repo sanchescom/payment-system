@@ -16,6 +16,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\CreateUser' => [
             'App\Listeners\GenerateAccount',
             'App\Listeners\GenerateSecret',
+            'App\Listeners\CreateUserComplete',
         ],
     ];
 

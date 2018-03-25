@@ -103,7 +103,7 @@ class PaymentController extends BaseController
     private function validatePayment(Request $request)
     {
         $this->validate($request, [
-            'payee'    => 'required|max:255|exists:users,email',
+            'payee'    => 'required|max:14|exists:users,account',
             'amount'   => 'required|numeric',
             'currency' => 'required|max:3',
         ]);

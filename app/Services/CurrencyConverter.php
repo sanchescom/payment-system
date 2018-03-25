@@ -4,10 +4,11 @@ namespace App\Services;
 
 use App\Currency;
 use Carbon\Carbon;
+use Exchanger\CurrencyPair;
 
 class CurrencyConverter
 {
-    public function convert(Carbon $date, $currency, $value)
+    public function convertDefault(Carbon $date, $currency, $value)
     {
         if ($currency === Currency::DEFAULT_CURRENCY)
         {
@@ -32,27 +33,31 @@ class CurrencyConverter
     }
 
 
-    public function convert1(Carbon $date, $currency, $value)
+    public function convert(Carbon $date, $pair, $value)
     {
-        if ($currency === Currency::DEFAULT_CURRENCY)
-        {
-            return $value;
-        }
 
-        /**
-         * @var Currency $actual_currency
-         */
-        $actual_currency = Currency::query()->firstOrNew([
-            'date'     => $date->format('Y-m-d'),
-            'currency' => $currency,
-        ]);
+        $currency = CurrencyPair::createFromString($pair);
 
-        if (!$actual_currency->rate)
-        {
-            $actual_currency->rate = \Swap::historical($currency . '/' . Currency::DEFAULT_CURRENCY, $date)->getValue();
-            $actual_currency->save();
-        }
-
-        return $value / $actual_currency->rate;
+        return "";
+//        if ($currency === Currency::DEFAULT_CURRENCY)
+//        {
+//            return $value;
+//        }
+//
+//        /**
+//         * @var Currency $actual_currency
+//         */
+//        $actual_currency = Currency::query()->firstOrNew([
+//            'date'     => $date->format('Y-m-d'),
+//            'currency' => $currency,
+//        ]);
+//
+//        if (!$actual_currency->rate)
+//        {
+//            $actual_currency->rate = \Swap::historical($currency . '/' . Currency::DEFAULT_CURRENCY, $date)->getValue();
+//            $actual_currency->save();
+//        }
+//
+//        return $value / $actual_currency->rate;
     }
 }
