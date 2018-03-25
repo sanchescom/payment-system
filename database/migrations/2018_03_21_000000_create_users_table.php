@@ -20,8 +20,9 @@ class CreateUsersTable extends Migration
 	        $table->string('city', 200);
             $table->string('email', 255)->unique();
             $table->char('currency', 3);
-            $table->char('secret', 32);
+            $table->char('secret', 32)->nullable();
 	        $table->integer('amount')->default(0);
+            $table->char('account', 14)->nullable()->unique();
 	        $table->dateTime('created_at');
 	        $table->dateTime('updated_at');
         });

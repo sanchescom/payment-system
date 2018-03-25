@@ -33,14 +33,14 @@ class Payment extends BaseModel
 
     protected $fillable = [
         'payee',
-        'currency',
         'amount',
-        'direction',
+        'currency',
     ];
 
     protected $guarded = [
         'payer',
-        'status'
+        'status',
+        'direction',
     ];
 
     protected $dates = [
@@ -72,6 +72,12 @@ class Payment extends BaseModel
     }
 
 
+    public function setSuccessStatus()
+    {
+        $this->status = self::SUCCESSFUL_STATUS;
+    }
+
+
     public function setIncomeDirection()
     {
         $this->type = self::INCOME_DIRECTION;
@@ -87,5 +93,11 @@ class Payment extends BaseModel
     public function setDate($date)
     {
         $this->date = $date;
+    }
+
+
+    public function setPayer($payer)
+    {
+        $this->payer = $payer;
     }
 }

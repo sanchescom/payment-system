@@ -14,34 +14,45 @@ class CurrencyConverter
             return $value;
         }
 
-        $day = $date->format('Y-m-d');
+        /**
+         * @var Currency $actual_currency
+         */
+        $actual_currency = Currency::query()->firstOrNew([
+            'date'     => $date->format('Y-m-d'),
+            'currency' => $currency,
+        ]);
 
-        $rate = 0.1;
+        if (!$actual_currency->rate)
+        {
+            $actual_currency->rate = \Swap::historical($currency . '/' . Currency::DEFAULT_CURRENCY, $date)->getValue();
+            $actual_currency->save();
+        }
 
-//        if (isset(self::$cached[$day]) && !empty(self::$cached[$day]))
-//        {
-//            $rate = self::$cached[$day];
-//        }
-//        else
-//        {
-//            /**
-//             * @var self $currency
-//             */
-//            $currency = self::query()->where('date', $date)->get()->first();
-//
-//            if (!$currency)
-//            {
-//                return $value;
-//            }
-//
-//            $rate = self::$cached[$day] = $currency->average[$source];
-//
-//            if (empty($rate))
-//            {
-//                return $value;
-//            }
-//        }
-//
-        return $value / $rate;
+        return $value / $actual_currency->rate;
+    }
+
+
+    public function convert1(Carbon $date, $currency, $value)
+    {
+        if ($currency === Currency::DEFAULT_CURRENCY)
+        {
+            return $value;
+        }
+
+        /**
+         * @var Currency $actual_currency
+         */
+        $actual_currency = Currency::query()->firstOrNew([
+            'date'     => $date->format('Y-m-d'),
+            'currency' => $currency,
+        ]);
+
+        if (!$actual_currency->rate)
+        {
+            $actual_currency->rate = \Swap::historical($currency . '/' . Currency::DEFAULT_CURRENCY, $date)->getValue();
+            $actual_currency->save();
+        }
+
+        return $value / $actual_currency->rate;
     }
 }

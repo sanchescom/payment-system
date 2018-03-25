@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Entities\Secret;
+use App\Events\CreateUser;
+use App\Services\AccountProcessor;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -22,8 +24,10 @@ class UserController extends Controller
 
 		try
 		{
-			$secret = Secret::create();
-			$user   = User::createWithSecret($request->all(), $secret);
+		    $user = User::create($request->all());
+
+            /** @var Secret $secret */
+		    list($account, $secret) = \Event::dispatch(new CreateUser($user));
 		}
 		catch (\Exception $exception)
 		{
@@ -32,7 +36,8 @@ class UserController extends Controller
 
 		return response()->json([
 			'user'   => $user->toArray(),
-			'secret' => $secret->getCode(),
+			'secret' => $secret,
+            'account'=> $account,
 		], Response::HTTP_OK);
 	}
 }

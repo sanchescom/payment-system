@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Entities\Secret;
+use App\Exceptions\UnchangeableProperty;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -22,37 +23,26 @@ use Illuminate\Database\Eloquent\Model;
 class User extends BaseModel
 {
 	protected $fillable = [
+        'name',
+        'email',
+        'currency',
 		'country',
 		'city',
 	];
 
 	protected $guarded = [
-		'name',
-		'currency',
 		'amount',
-		'email',
 	];
 
 	protected $hidden = [
 	    'secret',
-        'reserved',
+        'account',
     ];
 
-
-    /**
-     * @param array $attributes
-     * @param Secret $secret
-     * @return User
-     */
-    public static function createWithSecret(array $attributes = [], Secret $secret): User
-	{
-		$instance = new self();
-		$instance->secret = $secret->getHash();
-		$instance->forceFill($attributes);
-		$instance->save();
-
-		return $instance;
-	}
+	protected $private = [
+	    'account',
+        'secret',
+    ];
 
 
     /**
@@ -65,8 +55,56 @@ class User extends BaseModel
     }
 
 
-    public function increaseReserved($reserved)
+    public function increaseAmount($amount)
     {
-        $this->increment('reserved', $reserved * 100);
+        $this->amount = $this->amount + $amount;
+        $this->save();
+    }
+
+
+    public function decreaseAmount($amount)
+    {
+        $this->amount = $this->amount - $amount;
+        $this->save();
+    }
+
+
+    /**
+     * We can set account only if wasn't set before
+     *
+     * @param $account
+     * @throws \Exception
+     */
+    public function setAccount($account)
+    {
+        if ($this->getAccount() != null)
+        {
+            throw new UnchangeableProperty('It is impossible to change account if it was set before');
+        }
+
+        $this->setAttribute('account', $account);
+    }
+
+
+    /**
+     * We use getter of attributes for access to account because it private attribute
+     *
+     * @return mixed
+     */
+    public function getAccount()
+    {
+        return $this->getAttribute('account');
+    }
+
+
+    public function setSecret($account)
+    {
+        $this->setAttribute('secret', $account);
+    }
+
+
+    public function getSecret()
+    {
+        return $this->getAttribute('secret');
     }
 }

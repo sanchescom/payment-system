@@ -5,8 +5,11 @@ namespace App;
 use App\Traits\PrivateAttributes;
 use Illuminate\Database\Eloquent\Model;
 
-class BaseModel extends Model
+class BaseModel extends \Eloquent
 {
+    use PrivateAttributes;
+
+
     /**
      * Mutator for converting from float to integer
      * It is saving resources of date base to save information in integer instead of double

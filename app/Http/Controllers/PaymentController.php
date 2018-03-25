@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Entities\Secret;
 use App\Exceptions\SystemErrorException;
-use App\Jobs\PaymentProcess;
+use App\Jobs\PaymentIncome;
+use App\Jobs\PaymentSpend;
 use App\Payment;
+use App\Services\AccountProcessor;
 use App\Services\CurrencyConverter;
 use App\User;
 use Carbon\Carbon;
@@ -16,14 +18,15 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PaymentController extends BaseController
 {
-    public function transfer(Request $request, CurrencyConverter $converter)
+    public function transfer(Request $request, CurrencyConverter $converter, AccountProcessor $processor)
     {
         $this->validatePayment($request);
 
         $currency = $request->get('currency');
         $amount   = $request->get('amount');
+        $account  = $request->get('account');
 
-        $reserved = $converter->convert(Carbon::now(), $currency, $amount);
+        $reserved = $converter->convert(Carbon::now(), $currency, $processor->getCurrency($account), $amount);
 
         $user = $this->getCurrentUser();
 
@@ -35,13 +38,14 @@ class PaymentController extends BaseController
             $payment = new Payment();
             $payment->fill($request->all());
             $payment->setDate(Carbon::now()->toDateString());
+            $payment->setPayer($user->getAccount());
             $payment->setProcessingStatus();
             $payment->setSpendDirection();
             $payment->save();
 
-            $user->increaseReserved($reserved);
+            $user->decreaseAmount($reserved);
 
-            PaymentProcess::dispatch($payment);
+            PaymentSpend::dispatch($payment);
         }
         catch (\Exception $exception)
         {
@@ -67,7 +71,7 @@ class PaymentController extends BaseController
             $payment->setIncomeDirection();
             $payment->save();
 
-            PaymentProcess::dispatch($payment);
+            PaymentIncome::dispatch($payment);
         }
         catch (\Exception $exception)
         {
@@ -101,7 +105,7 @@ class PaymentController extends BaseController
         $this->validate($request, [
             'payee'    => 'required|max:255|exists:users,email',
             'amount'   => 'required|numeric',
-            'currency' => 'max:3',
+            'currency' => 'required|max:3',
         ]);
     }
 }

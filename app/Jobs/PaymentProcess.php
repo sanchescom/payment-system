@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Payment;
-use App\Services\CurrencyConverter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -23,11 +22,5 @@ class PaymentProcess implements ShouldQueue
     public function __construct(Payment $payment)
     {
         $this->payment = $payment;
-    }
-
-
-    public function handle(CurrencyConverter $converter)
-    {
-        $amount = $this->payment->amount;
     }
 }
