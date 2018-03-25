@@ -23,6 +23,7 @@ Route::post('/users', 'UserController@create');
 Route::patch('/currencies', 'CurrencyController@upload');
 
 Route::get('/payments/operations', 'PaymentController@operations');
+Route::get('/payments/download', 'PaymentController@download');
 Route::post('/payments/recharge', 'PaymentController@recharge');
 
 Route::middleware(\App\Http\Middleware\SimpleAuth::class)->post('/payments/transfer', 'PaymentController@transfer');

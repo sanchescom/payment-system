@@ -9,6 +9,7 @@
         "florianv/laravel-swap": "^1.2",
         "laravel/framework": "5.4.*",
         "laravel/tinker": "~1.0",
+        "league/csv": "^9.1",
         "php-http/guzzle6-adapter": "^1.1",
         "php-http/message": "^1.6"
     },

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Collections\PaymentsCollection;
+use App\Currency;
 use App\Entities\Secret;
 use App\Exceptions\SystemErrorException;
 use App\Jobs\PaymentIncome;
@@ -14,6 +16,8 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use League\Csv\CannotInsertRecord;
+use League\Csv\Writer;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -90,6 +94,53 @@ class PaymentController extends Controller
 
     public function operations(Request $request)
     {
+        /**
+         * @var User $user
+         * @var PaymentsCollection|Payment[] $payments
+         * @var PaymentsCollection|Payment[] $sums
+         */
+        list($user, $payments, $sums) = $this->getOperations($request);
+
+        return response()->json([
+            'data' => $payments->toArray(),
+            'meat' => [
+                'user' => $user->getData(),
+                'sums' => $sums->getNativeAndDefaultSum(),
+            ],
+        ], Response::HTTP_OK);
+    }
+
+
+    public function download(Request $request)
+    {
+        /**
+         * @var User $user
+         * @var PaymentsCollection|Payment[] $payments
+         * @var PaymentsCollection|Payment[] $sums
+         */
+        list($user, $payments, $sums) = $this->getOperations($request);
+
+        $csv = Writer::createFromFileObject(new \SplTempFileObject());
+
+        try {
+            $csv->insertAll($payments->getDataForCsv($user)->toArray());
+            $csv->insertOne([Currency::DEFAULT_CURRENCY .':' . $sums->getNativeAndDefaultSum()['default']]);
+            $csv->insertOne([$user->currency . ':' . $sums->getNativeAndDefaultSum()['native']]);
+        }
+        catch (CannotInsertRecord | \TypeError $e)
+        {
+            $e->getMessage();
+        }
+
+        return response()->make((string) $csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="payments.csv"',
+        ]);
+    }
+
+
+    private function getOperations(Request $request)
+    {
         $this->validate($request, [
             'account'   => 'required|max:14',
             'from_date' => 'date',
@@ -102,23 +153,18 @@ class PaymentController extends Controller
             $from_date = $request->get('from_date');
             $to_date   = $request->get('to_date');
 
-            $user      = User::findByAccount($account);
-            $payments  = PaymentRepository::getForUserByPeriod($user, $from_date, $to_date);
+            $user = User::findByAccount($account);
 
-            $sum = PaymentRepository::getSumForUserByPeriodGroupedByCurrencies($user, $from_date, $to_date)->getNativeAndDefaultSum();
+            return [
+                $user,
+                PaymentRepository::getForUserByPeriod($user, $from_date, $to_date),
+                PaymentRepository::getSumForUserByPeriodGroupedByCurrencies($user, $from_date, $to_date)
+            ];
         }
         catch (\Exception $exception)
         {
             throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Problem with viewing list operations', $exception);
         }
-
-        return response()->json([
-            'data' => $payments->toArray(),
-            'meat' => [
-                'user' => $user->getData(),
-                'sum'  => $sum,
-            ],
-        ], Response::HTTP_OK);
     }
 
 
