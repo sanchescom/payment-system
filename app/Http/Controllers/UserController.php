@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Entities\Secret;
 use App\Events\CreateUser;
 use App\Repositories\UserRepository;
-use App\Services\AccountProcessor;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;

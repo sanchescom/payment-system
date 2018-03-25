@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Entities\Secret;
 use App\Exceptions\UnchangeableProperty;
 use Illuminate\Database\Eloquent\Model;
 
