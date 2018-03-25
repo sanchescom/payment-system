@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\AccountProcessor;
+use App\Services\CurrencyCollector;
 use App\Services\CurrencyConverter;
 use Illuminate\Support\ServiceProvider;
 
@@ -30,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->bind('AccountProcessor', function () {
             return new AccountProcessor();
+        });
+        $this->app->bind('CurrencyCollector', function () {
+            return new CurrencyCollector();
         });
 
         if ($this->app->environment() !== 'production') {

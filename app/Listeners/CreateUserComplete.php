@@ -3,17 +3,16 @@
 namespace App\Listeners;
 
 use App\Events\CreateUser;
+use App\Services\CurrencyCollector;
 
 class CreateUserComplete
 {
-    /**
-     * Create the event listener.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
+    protected $collector;
 
+
+    public function __construct(CurrencyCollector $collector)
+    {
+        $this->collector = $collector;
     }
 
     /**
@@ -24,6 +23,15 @@ class CreateUserComplete
      */
     public function handle(CreateUser $event)
     {
+        try
+        {
+            $this->collector->create($event->user->currency);
+        }
+        catch (\Exception $exception)
+        {
+            //TODO Send information to sentry
+        }
+
         $event->user->save();
     }
 }

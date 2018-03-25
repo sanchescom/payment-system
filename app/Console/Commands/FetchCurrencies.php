@@ -4,12 +4,22 @@ namespace App\Console\Commands;
 
 use App\Currency;
 use App\Repositories\UserRepository;
+use App\Services\CurrencyCollector;
 use Illuminate\Console\Command;
 
 class FetchCurrencies extends Command
 {
     protected $signature = 'fetch:currencies';
     protected $description = 'Fetching currencies for users accounts';
+
+    protected $collector;
+
+    public function __construct(CurrencyCollector $collector)
+    {
+        $this->collector = $collector;
+
+        parent::__construct();
+    }
 
 
     public function handle()
@@ -22,14 +32,7 @@ class FetchCurrencies extends Command
         {
             try
             {
-                $rate = \Swap::latest($currency . '/' . Currency::DEFAULT_CURRENCY);
-
-                Currency::query()->updateOrCreate([
-                    'date'     => $rate->getDate()->format('Y-m-d'),
-                    'currency' => $currency,
-                ], [
-                    'rate'=> $rate->getValue(),
-                ]);
+                $this->collector->create($currency);
             }
             catch (\Exception $exception)
             {

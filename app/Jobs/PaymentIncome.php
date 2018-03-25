@@ -11,7 +11,6 @@ class PaymentIncome extends PaymentProcess
     public function handle(CurrencyConverter $converter)
     {
         $amount = $this->payment->amount;
-
         $user   = User::findByAccount($this->payment->payee);
 
         if ($this->payment->currency !== $user->currency)
