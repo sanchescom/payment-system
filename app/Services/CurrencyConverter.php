@@ -12,12 +12,13 @@ class CurrencyConverter
 {
     public function convert(Carbon $date, $pair, $value)
     {
-        if ($value == 0)
+        $currency_pair  = CurrencyPair::createFromString($pair);
+
+        if ($currency_pair->isIdentical() || $value == 0)
         {
             return $value;
         }
 
-        $currency_pair  = CurrencyPair::createFromString($pair);
         $currency_array = [
             $currency_pair->getBaseCurrency(),
             $currency_pair->getQuoteCurrency(),

@@ -32,10 +32,7 @@ class PaymentController extends BaseController
             'currency' => 'in:' . $user->currency . ',' . $processor->getCurrency($payee)
         ]);
 
-        if ($user->currency != $currency)
-        {
-            $amount = $converter->convert(Carbon::now(), $currency . "/" . $currency, $amount);
-        }
+        $amount = $converter->convert(Carbon::now(), $currency . "/" . $user->currency, $amount);
 
         $this->checkSecret($request, $user);
         $this->checkFounds($amount, $user);
