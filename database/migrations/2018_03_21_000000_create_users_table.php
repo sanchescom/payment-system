@@ -18,7 +18,7 @@ class CreateUsersTable extends Migration
 	        $table->string('name');
 	        $table->char('country', 2);
 	        $table->string('city', 200);
-            $table->string('email', 255)->unique();
+            $table->string('email', 100)->unique();
             $table->char('currency', 3);
             $table->char('secret', 32)->nullable();
 	        $table->integer('amount')->default(0);

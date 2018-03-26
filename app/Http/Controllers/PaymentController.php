@@ -102,7 +102,7 @@ class PaymentController extends Controller
         list($user, $payments, $sums) = $this->getOperations($request);
 
         return response()->json([
-            'data' => $payments->toArray(),
+            'data' => $payments->getData(),
             'meta' => [
                 'user' => $user->getData(),
                 'sums' => $sums->getNativeAndDefaultSum(),
@@ -155,6 +155,16 @@ class PaymentController extends Controller
             $to_date   = $request->get('to_date');
 
             $user = User::findByAccount($account);
+
+            if ($from_date)
+            {
+                $from_date = Carbon::createFromFormat('Y-m-d', $from_date);
+            }
+
+            if ($to_date)
+            {
+                $to_date = Carbon::createFromFormat('Y-m-d', $to_date);
+            }
 
             return [
                 $user,

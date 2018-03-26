@@ -5,7 +5,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>User:</label>
-                        <select  class="form-control col-md-6" v-model="item.account">
+                        <select  class="form-control col-md-6" required v-model="form.account">
                             <option v-for="user in users" v-bind:value="user.account">
                                 {{ user.name }}
                             </option>
@@ -17,7 +17,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>From date:</label>
-                        <input type="text" class="form-control col-md-6" v-mask="'9999-99-99'" v-model="item.date_from" />
+                        <input type="text" class="form-control col-md-6" v-mask="'9999-99-99'" v-model="form.from_date" />
                     </div>
                 </div>
             </div>
@@ -25,7 +25,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>To date:</label>
-                        <input type="text" class="form-control col-md-6" v-mask="'9999-99-99'" v-model="item.date_to" />
+                        <input type="text" class="form-control col-md-6" v-mask="'9999-99-99'" v-model="form.to_date" />
                     </div>
                 </div>
             </div>
@@ -34,104 +34,114 @@
                 <button class="btn btn-primary">Show payments</button>
             </div>
         </form>
-    </div>
 
-    <div v-if="checkOperations()">
-        <h1>Payments</h1>
+        <div v-show="checkOperations()">
+            <h1>Payments</h1>
 
-        <div class="row">
-            <div class="col-md-10"></div>
-            <div class="col-md-2">
-                <button class="btn btn-primary" v-on:click="getCsvPayments">Download in CSV</button>
+            <div class="row">
+                <div class="col-md-10"></div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary" v-on:click="getCsvPayments">Download in CSV</button>
+                </div>
             </div>
+
+            <br />
+
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <td>ID</td>
+                    <td>Payee</td>
+                    <td>Payer</td>
+                    <td>Amount</td>
+                    <td>Currency</td>
+                    <td>Date</td>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr v-for="operation in operations">
+                    <td>{{ operation.id }}</td>
+                    <td>{{ operation.payee }}</td>
+                    <td>{{ operation.payer }}</td>
+                    <td>{{ operation.amount }}</td>
+                    <td>{{ operation.currency }}</td>
+                    <td>{{ operation.date }}</td>
+                </tr>
+                </tbody>
+
+                <tfoot>
+                <tr>
+                    <td colspan="5">{{ system_currency }}: {{ system_sum }}</td>
+                </tr>
+                <tr>
+                    <td colspan="5">{{ user_currency }}: {{ user_sum}}</td>
+                </tr>
+                </tfoot>
+            </table>
         </div>
-
-        <br />
-
-        <table class="table table-hover">
-            <thead>
-            <tr>
-                <td>ID</td>
-                <td>Payee</td>
-                <td>Amount</td>
-                <td>Currency</td>
-            </tr>
-            </thead>
-
-            <tbody>
-            <tr v-for="item in items">
-                <td>{{ item.id }}</td>
-                <td>{{ item.payee }}</td>
-                <td>{{ item.amount }}</td>
-                <td>{{ item.currency }}</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <div v-else>
-        <b-alert variant="warning">Please chose user from list</b-alert>
     </div>
 </template>
 
 <script>
-
-    import {app_url} from "../app";
-
     export default {
-         data() {
-             return {
-                 item: {},
-                 users: {},
-                 operations: {}
-             }
-         },
+        data() {
+            return {
+                url: 'http://payment-system.d:8092/api/',
+                form: {},
+                users: {},
+                operations: {},
+                user_currency: '',
+                system_currency: 'USD',
+                system_sum: 0,
+                user_sum: 0,
+            }
+        },
 
-         created: function()
-         {
-             let endpoint = app_url + 'users';
+        created: function () {
+            this.getUsers();
+        },
 
-             this.axios.get(endpoint)
-                 .then((response) => {
-                     this.users = response.data;
-                 });
-         },
-
-         methods: {
-             checkOperations()
-             {
-                 return this.operations.length > 0;
-             },
-             getPayments()
-             {
-                 let endpoint = app_url + 'payments/operations';
-
-                 this.axios.get(endpoint, this.item)
-                     .then(response => {
-                         console.log(this.item)
-                     })
-                     .catch(error => {
-                         console.log(error.response)
-                     });
-             },
-             getCsvPayments()
-             {
-                 let endpoint = app_url + 'payments/download';
-
-                 this.axios({
-                     method:'get',
-                     url:endpoint,
-                     responseType:'arraybuffer',
-                     data: this.item
-                 })
-                     .then(function(response) {
-                         let blob = new Blob([response.data], { type:   'text/csv' } )
-                         let link = document.createElement('a')
-                         link.href = window.URL.createObjectURL(blob)
-                         link.download = 'payments.csv'
-                         link.click()
-
-                     });
-             }
-         }
+        methods: {
+            checkOperations() {
+                return this.operations.length > 0;
+            },
+            getUsers() {
+                this.axios({
+                    method: 'get',
+                    url: this.url + 'users',
+                    params: this.form
+                }).then(response => {
+                    this.users = response.data.data;
+                });
+            },
+            getPayments() {
+                this.axios({
+                    method: 'get',
+                    url: this.url + 'payments/operations',
+                    params: this.form
+                }).then(response => {
+                    this.operations = response.data.data;
+                    this.user_currency = response.data.meta.user.currency;
+                    this.system_sum = response.data.meta.sums.default_sum;
+                    this.user_sum = response.data.meta.sums.native_sum;
+                });
+            },
+            getCsvPayments() {
+                this.axios({
+                    method: 'get',
+                    url: this.url + 'payments/operations/download',
+                    responseType: 'arraybuffer',
+                    params: this.form
+                })
+                .then(function (response) {
+                    let blob = new Blob([response.data], {type: 'text/csv'});
+                    let link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = 'payments.csv';
+                    link.click()
+                });
+            }
+        }
     }
 </script>

@@ -8,8 +8,6 @@ import axios from 'axios';
 import App from './App.vue';
 import DisplayPayments from './components/DisplayPayments.vue';
 
-export const app_url = 'http://payment-system.d:8092/api/';
-
 const VueInputMask = require('vue-inputmask').default;
 
 const routes = [

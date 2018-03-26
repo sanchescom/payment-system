@@ -41,17 +41,19 @@ Request body:
 
 Response body:
     
-    {
+    "data": {
         "user": {
-            "id": 1,
-            "name": "Alex",
-            "country": "RU",
-            "city": "Moscow",
-            "currency": "RUB",
-            "email": "alex@email.ru"
+            "name": "Tom",
+            "country": "US",
+            "city": "Washington",
+            "currency": "USD",
+            "email": "tom.com@mail.ru",
+            "updated_at": "2018-03-26 19:43:27",
+            "created_at": "2018-03-26 19:43:26",
+            "id": 1
         },
-        "secret": "wRw",
-        "account": "RUB00000000001"
+        "secret": "Au6",
+        "account": "USD00000000001"
     }
 
 ### GET /users
@@ -60,12 +62,11 @@ Users list: http://payment-system.d:8082/api/users
 
 Response body:
 
-    [
+    "data": [
         {
-            "id": "1",
-            "name": "Alex",
-            "account": "RUB00000000001",
-            "currency": "RUB"
+            "id": 1,
+            "name": "Tom",
+            "currency": "USD"
         }
     ]
 
@@ -83,6 +84,10 @@ Request body:
             "currency": "RUB"
         }
     ]
+
+Response:
+
+- `204 No Content` - everything worked as expected.
 
 ### GET /payments/operations
 
@@ -149,7 +154,7 @@ Request body:
 
 Response body:
     
-    {
+    data: {
        "id": 1,
        "payee": "RUB00000000002",
        "amount": "2000",

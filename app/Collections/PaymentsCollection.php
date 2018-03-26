@@ -24,9 +24,26 @@ class PaymentsCollection extends BaseCollection
         return $this->map(function(Payment $payment) use ($user) {
            return [
                 $user->name,
+                $payment->payee,
+                $payment->payer,
                 $payment->amount,
                 $payment->currency,
                 $payment->date->toDateString(),
+            ];
+        });
+    }
+
+
+    public function getData()
+    {
+        return $this->map(function(Payment $payment) {
+            return [
+                'id'       => $payment->id,
+                'payee'    => $payment->payee,
+                'payer'    => $payment->payer,
+                'amount'   => $payment->amount,
+                'currency' => $payment->currency,
+                'date'     => $payment->date->toDateString(),
             ];
         });
     }

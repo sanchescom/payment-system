@@ -32,11 +32,11 @@ class User extends BaseModel
 
 	protected $guarded = [
 		'amount',
+        'account',
 	];
 
 	protected $hidden = [
 	    'secret',
-        'account',
     ];
 
 	protected $private = [
