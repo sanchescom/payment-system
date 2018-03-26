@@ -34,6 +34,17 @@ services:
       - app
     working_dir: /var/www
 
+  node:
+    image: "node:8"
+    working_dir: /var/www
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/var/www
+    expose:
+      - "8091"
+    command: bash -c "npm install node-sass cross-env@latest && chmod -R u+x /var/www/node_modules && npm run development"
+
   database:
     image: mysql:5.7
     volumes:
