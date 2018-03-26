@@ -42,7 +42,7 @@ services:
     volumes:
       - ./:/var/www
     expose:
-      - "8091"
+      - "8092"
     command: bash -c "npm install node-sass cross-env@latest && chmod -R u+x /var/www/node_modules && npm run development"
 
   database:
