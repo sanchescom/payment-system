@@ -18,14 +18,15 @@ use Illuminate\Http\Request;
 //});
 
 
-Route::post('/users', 'UserController@create');
+Route::get('/users', 'UserController@getAll');
+Route::post('/users', 'UserController@createNew');
 
-Route::patch('/currencies', 'CurrencyController@upload');
+Route::patch('/currencies', 'CurrencyController@uploadRates');
 
-Route::get('/payments/operations', 'PaymentController@operations');
-Route::get('/payments/download', 'PaymentController@download');
-Route::post('/payments/recharge', 'PaymentController@recharge');
+Route::get('/payments/operations', 'PaymentController@getAllOperations');
+Route::get('/payments/download', 'PaymentController@downloadAllOperations');
+Route::post('/payments/recharge', 'PaymentController@rechargeAccount');
 
-Route::middleware(\App\Http\Middleware\SimpleAuth::class)->post('/payments/transfer', 'PaymentController@transfer');
+Route::middleware(\App\Http\Middleware\SimpleAuth::class)->post('/payments/transfer', 'PaymentController@transferMoney');
 
 

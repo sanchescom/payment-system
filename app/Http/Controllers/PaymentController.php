@@ -23,7 +23,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PaymentController extends Controller
 {
-    public function transfer(Request $request, CurrencyConverter $converter, AccountProcessor $processor)
+    public function transferMoney(Request $request, CurrencyConverter $converter, AccountProcessor $processor)
     {
         $this->validatePayment($request);
 
@@ -68,7 +68,7 @@ class PaymentController extends Controller
     }
 
 
-    public function recharge(Request $request)
+    public function rechargeAccount(Request $request)
     {
         $this->validatePayment($request);
 
@@ -92,7 +92,7 @@ class PaymentController extends Controller
     }
 
 
-    public function operations(Request $request)
+    public function getAllOperations(Request $request)
     {
         /**
          * @var User $user
@@ -111,7 +111,7 @@ class PaymentController extends Controller
     }
 
 
-    public function download(Request $request)
+    public function downloadAllOperations(Request $request)
     {
         /**
          * @var User $user

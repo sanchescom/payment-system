@@ -43,7 +43,7 @@ services:
       - ./:/var/www
     expose:
       - "8092"
-    command: bash -c "npm install --save bootstrap -D bootstrap-sass -D && chmod -R u+x /var/www/node_modules && npm run development"
+    command: bash -c "npm install --save bootstrap -D bootstrap-sass -D && chmod -R u+x /var/www/node_modules && npm run watch"
 
   database:
     image: mysql:5.7

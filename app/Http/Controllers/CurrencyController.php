@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CurrencyController extends Controller
 {
-    public function upload(Request $request)
+    public function uploadRates(Request $request)
     {
         $this->validate($request, [
             'currencies.*.date'     => 'required|date',

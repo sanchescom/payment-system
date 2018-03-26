@@ -1,11 +1,15 @@
 <template>
     <div>
-        <form v-on:submit.prevent="findPayments">
+        <form v-on:submit.prevent="getPayments">
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>User:</label>
-                        <input type="text" class="form-control col-md-6" />
+                        <select  class="form-control col-md-6" v-model="item.account">
+                            <option v-for="user in users" v-bind:value="user.account">
+                                {{ user.name }}
+                            </option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -13,7 +17,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>From date:</label>
-                        <input type="text" class="form-control col-md-6" v-mask="'9999-99-99'" />
+                        <input type="text" class="form-control col-md-6" v-mask="'9999-99-99'" v-model="item.date_from" />
                     </div>
                 </div>
             </div>
@@ -21,7 +25,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>To date:</label>
-                        <input type="text" class="form-control col-md-6" v-mask="'9999-99-99'" />
+                        <input type="text" class="form-control col-md-6" v-mask="'9999-99-99'" v-model="item.date_to" />
                     </div>
                 </div>
             </div>
@@ -32,44 +36,41 @@
         </form>
     </div>
 
-    <!--<div>-->
-        <!--<b-alert :show="checkToken()" variant="danger">Token is required for editing from!</b-alert>-->
+    <div v-if="checkOperations()">
+        <h1>Payments</h1>
 
-        <!--<h1>Apartments</h1>-->
+        <div class="row">
+            <div class="col-md-10"></div>
+            <div class="col-md-2">
+                <button class="btn btn-primary" v-on:click="getCsvPayments">Download in CSV</button>
+            </div>
+        </div>
 
-        <!--<div class="row">-->
-            <!--<div class="col-md-10"></div>-->
-            <!--<div class="col-md-2">-->
-                <!--<router-link :to="{ name: 'CreateApartment' }" class="btn btn-primary">Create Apartment</router-link>-->
-            <!--</div>-->
-        <!--</div>-->
+        <br />
 
-        <!--<br />-->
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <td>ID</td>
+                <td>Payee</td>
+                <td>Amount</td>
+                <td>Currency</td>
+            </tr>
+            </thead>
 
-        <!--<table class="table table-hover">-->
-            <!--<thead>-->
-            <!--<tr>-->
-                <!--<td>ID</td>-->
-                <!--<td>Move in date</td>-->
-                <!--<td>Country</td>-->
-                <!--<td>Post code/City/Street</td>-->
-                <!--<td>Email</td>-->
-                <!--<td>Created at</td>-->
-            <!--</tr>-->
-            <!--</thead>-->
-
-            <!--<tbody>-->
-            <!--<tr v-for="item in items">-->
-                <!--<td>{{ item.id }}</td>-->
-                <!--<td>{{ item.move_in_date }}</td>-->
-                <!--<td>{{ item.country }}</td>-->
-                <!--<td>{{ item.post_code }}/{{ item.city }}/{{ item.street }}</td>-->
-                <!--<td>{{ item.email }}</td>-->
-                <!--<td>{{ item.created_at }}</td>-->
-            <!--</tr>-->
-            <!--</tbody>-->
-        <!--</table>-->
-    <!--</div>-->
+            <tbody>
+            <tr v-for="item in items">
+                <td>{{ item.id }}</td>
+                <td>{{ item.payee }}</td>
+                <td>{{ item.amount }}</td>
+                <td>{{ item.currency }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div v-else>
+        <b-alert variant="warning">Please chose user from list</b-alert>
+    </div>
 </template>
 
 <script>
@@ -77,67 +78,60 @@
     import {app_url} from "../app";
 
     export default {
-        // data() {
-        //     return {
-        //         item: {},
-        //         token: this.$route.query.token
-        //     }
-        // },
-        //
-        // created: function()
-        // {
-        //     this.fetchApartments();
-        // },
-        //
-        // methods: {
-        //     fetchApartments()
-        //     {
-        //         let endpoint = app_url + 'apartments';
-        //
-        //         this.axios.get(endpoint)
-        //             .then((response) => {
-        //                 this.items = response.data;
-        //             });
-        //     },
-        //     checkToken() {
-        //         return typeof this.token === 'undefined' || !this.token;
-        //     },
-        //     getApartment()
-        //     {
-        //         let endpoint = app_url + 'apartments/' + this.$route.params.id;
-        //
-        //         this.axios.get(endpoint)
-        //             .then((response) => {
-        //                 this.item = response.data;
-        //             });
-        //     },
-        //     updateApartment()
-        //     {
-        //         let endpoint = app_url + 'apartments/' + this.$route.params.id;
-        //
-        //         if (!this.checkToken()) {
-        //             endpoint += '?token=' + this.token;
-        //         }
-        //
-        //         this.axios.post(endpoint, this.item)
-        //             .then(response => {
-        //                 this.$router.push({
-        //                     name: 'DisplayApartment'
-        //                 });
-        //                 console.log(response)
-        //             })
-        //             .catch(error => {
-        //                 if (error.response.status === 403)
-        //                 {
-        //                     this.$refs.tokenModalRef.show();
-        //                 }
-        //                 console.log(error.response)
-        //             });
-        //     },
-        //     findPayments()
-        //     {
-        //
-        //     }
-        // }
+         data() {
+             return {
+                 item: {},
+                 users: {},
+                 operations: {}
+             }
+         },
+
+         created: function()
+         {
+             let endpoint = app_url + 'users';
+
+             this.axios.get(endpoint)
+                 .then((response) => {
+                     this.users = response.data;
+                 });
+         },
+
+         methods: {
+             checkOperations()
+             {
+                 return this.operations.length > 0;
+             },
+             getPayments()
+             {
+                 let endpoint = app_url + 'payments/operations';
+
+                 this.axios.get(endpoint, this.item)
+                     .then(response => {
+                         console.log(this.item)
+                     })
+                     .catch(error => {
+                         console.log(error.response)
+                     });
+             },
+             getCsvPayments()
+             {
+                 let endpoint = app_url + 'payments/download';
+
+                 this.axios({
+                     method:'get',
+                     url:endpoint,
+                     responseType:'arraybuffer',
+                     data: this.item
+                 })
+                     .then(function(response) {
+                         let blob = new Blob([response.data], { type:   'text/csv' } )
+                         let link = document.createElement('a')
+                         link.href = window.URL.createObjectURL(blob)
+                         link.download = 'payments.csv'
+                         link.click()
+
+                     });
+             }
+         }
     }
 </script>

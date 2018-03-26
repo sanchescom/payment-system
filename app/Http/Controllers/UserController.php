@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class UserController extends Controller
 {
-	public function create(Request $request)
+	public function createNew(Request $request)
 	{
 		$this->validate($request, [
 			'name'    => 'required|max:255',
@@ -35,18 +35,22 @@ class UserController extends Controller
 		}
 
 		return response()->json([
-			'user'   => $user->toArray(),
-			'secret' => $secret,
-            'account'=> $account,
+			[
+				'data' => [
+					'user'   => $user->toArray(),
+					'secret' => $secret,
+					'account'=> $account,
+				]
+			]
 		], Response::HTTP_OK);
 	}
 
 
-	public function users()
+	public function getAll()
     {
         try
         {
-            $user = UserRepository::getUsers();
+            $users = UserRepository::getUsers();
         }
         catch (\Exception $exception)
         {
@@ -54,7 +58,7 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'user'   => $user->toArray(),
+            'data' => $users->toArray(),
         ], Response::HTTP_OK);
     }
 }
