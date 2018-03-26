@@ -30,6 +30,9 @@ class Payment extends BaseModel
     const INCOME_DIRECTION = 1;
     const SPEND_DIRECTION = 2;
 
+    const NATIVE_DYNAMIC_SUM_FIELD = 'naive_sum';
+    const DEFAULT_DYNAMIC_SUM_FIELD = 'default_sum';
+
     protected $fillable = [
         'payee',
         'amount',

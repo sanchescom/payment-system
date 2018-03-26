@@ -9,12 +9,12 @@ class PaymentsCollection extends BaseCollection
 {
     public function getNativeAndDefaultSum()
     {
-        $native_sum  = $this->first()['native_sum'];
-        $default_sum = $this->first()['default_sum'];
+        $native_sum  = $this->first()[Payment::NATIVE_DYNAMIC_SUM_FIELD];
+        $default_sum = $this->first()[Payment::DEFAULT_DYNAMIC_SUM_FIELD];
 
         return [
-            'native' => $native_sum > 0 ? $native_sum / 100 : 0,
-            'default' => $default_sum > 0 ? $default_sum / 100 : 0,
+            Payment::NATIVE_DYNAMIC_SUM_FIELD  => $native_sum > 0 ? $native_sum / 100 : 0,
+            Payment::DEFAULT_DYNAMIC_SUM_FIELD => $default_sum > 0 ? $default_sum / 100 : 0,
         ];
     }
 

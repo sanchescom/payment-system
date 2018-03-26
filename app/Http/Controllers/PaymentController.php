@@ -122,10 +122,11 @@ class PaymentController extends Controller
 
         $csv = Writer::createFromFileObject(new \SplTempFileObject());
 
-        try {
+        try
+        {
             $csv->insertAll($payments->getDataForCsv($user)->toArray());
-            $csv->insertOne([Currency::DEFAULT_CURRENCY .':' . $sums->getNativeAndDefaultSum()['default']]);
-            $csv->insertOne([$user->currency . ':' . $sums->getNativeAndDefaultSum()['native']]);
+            $csv->insertOne([Currency::DEFAULT_CURRENCY .':' . $sums->getNativeAndDefaultSum()[Payment::DEFAULT_DYNAMIC_SUM_FIELD]]);
+            $csv->insertOne([$user->currency . ':' . $sums->getNativeAndDefaultSum()[Payment::NATIVE_DYNAMIC_SUM_FIELD]]);
         }
         catch (CannotInsertRecord | \TypeError $e)
         {
