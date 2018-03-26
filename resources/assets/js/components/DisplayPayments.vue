@@ -72,10 +72,10 @@
 
                 <tfoot>
                 <tr>
-                    <td colspan="5">{{ system_currency }}: {{ system_sum }}</td>
+                    <td colspan="6">{{ system_currency }}: {{ system_sum }}</td>
                 </tr>
                 <tr>
-                    <td colspan="5">{{ user_currency }}: {{ user_sum}}</td>
+                    <td colspan="6">{{ user_currency }}: {{ user_sum}}</td>
                 </tr>
                 </tfoot>
             </table>

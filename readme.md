@@ -144,6 +144,12 @@ Response:
 
 Sending money between users: http://payment-system.d:8082/api/payments/transfer
 
+Header:
+
+```
+Authorization: tom.com@mail.ru
+```
+
 Request body:
 
     {
