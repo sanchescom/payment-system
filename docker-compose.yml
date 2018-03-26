@@ -35,7 +35,7 @@ services:
     working_dir: /var/www
 
   node:
-    image: "node:8"
+    image: "node:9"
     working_dir: /var/www
     environment:
       - NODE_ENV=development
@@ -43,7 +43,7 @@ services:
       - ./:/var/www
     expose:
       - "8092"
-    command: bash -c "npm install node-sass cross-env@latest && chmod -R u+x /var/www/node_modules && npm run development"
+    command: bash -c "npm install --save bootstrap -D bootstrap-sass -D && chmod -R u+x /var/www/node_modules && npm run development"
 
   database:
     image: mysql:5.7

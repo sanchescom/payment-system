@@ -103,7 +103,7 @@ class PaymentController extends Controller
 
         return response()->json([
             'data' => $payments->toArray(),
-            'meat' => [
+            'meta' => [
                 'user' => $user->getData(),
                 'sums' => $sums->getNativeAndDefaultSum(),
             ],

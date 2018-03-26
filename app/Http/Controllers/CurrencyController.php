@@ -23,7 +23,7 @@ class CurrencyController extends Controller
 
             foreach ($currencies as $currency)
             {
-                (new Currency())->create($currency);
+                Currency::query()->updateOrCreate($currency);
             }
         }
         catch (\Exception $exception)
