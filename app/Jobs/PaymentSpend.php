@@ -16,33 +16,33 @@ use App\User;
  */
 class PaymentSpend extends PaymentProcess
 {
-    public function handle(CurrencyConverter $converter, AccountProcessor $processor)
-    {
-        $payee = User::findByAccount($this->payment->payee);
+	public function handle(CurrencyConverter $converter, AccountProcessor $processor)
+	{
+		$payee = User::findByAccount($this->payment->payee);
 
-        $native_pair    = $this->payment->currency . "/" . $processor->getCurrency($this->payment->payer);
-        $default_pair   = $this->payment->currency . "/" . Currency::DEFAULT_CURRENCY;
-        $converted_pair = $this->payment->currency . "/" . $payee->currency;
+		$native_pair    = $this->payment->currency . "/" . $processor->getCurrency($this->payment->payer);
+		$default_pair   = $this->payment->currency . "/" . Currency::DEFAULT_CURRENCY;
+		$converted_pair = $this->payment->currency . "/" . $payee->currency;
 
-        $native    = $converter->convert($this->payment->date, $native_pair, $this->payment->amount);
-        $default   = $converter->convert($this->payment->date, $default_pair, $this->payment->amount);
-        $converted = $converter->convert($this->payment->date, $converted_pair, $this->payment->amount);
+		$native    = $converter->convert($this->payment->date, $native_pair, $this->payment->amount);
+		$default   = $converter->convert($this->payment->date, $default_pair, $this->payment->amount);
+		$converted = $converter->convert($this->payment->date, $converted_pair, $this->payment->amount);
 
-        $payee->increaseAmount($converted);
+		$payee->increaseAmount($converted);
 
-        try
-        {
-            $this->payment->setNative($native);
-            $this->payment->setDefault($default);
-            $this->payment->setSuccessStatus();
-            $this->payment->save();
-        }
-        catch (\Exception $exception)
-        {
-            $payee->decreaseAmount($converted);
+		try
+		{
+			$this->payment->setNative($native);
+			$this->payment->setDefault($default);
+			$this->payment->setSuccessStatus();
+			$this->payment->save();
+		}
+		catch (\Exception $exception)
+		{
+			$payee->decreaseAmount($converted);
 
-            $payer  = User::findByAccount($this->payment->payer);
-            $payer->increaseAmount($native);
-        }
-    }
+			$payer = User::findByAccount($this->payment->payer);
+			$payer->increaseAmount($native);
+		}
+	}
 }

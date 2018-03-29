@@ -9,18 +9,18 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 
 class CreateUser
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+	use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $user;
+	public $user;
 
-    /**
-     * Create a new event instance.
-     *
-     * @param  User $user
-     * @return void
-     */
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-    }
+
+	/**
+	 * Create a new event instance.
+	 *
+	 * @param  User $user
+	 */
+	public function __construct(User $user)
+	{
+		$this->user = $user;
+	}
 }

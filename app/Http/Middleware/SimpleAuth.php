@@ -36,7 +36,7 @@ class SimpleAuth
 			throw new AccessDeniedHttpException('Access denied');
 		}
 
-        Controller::setUser($user);
+		Controller::setUser($user);
 
 		return $next($request);
 	}

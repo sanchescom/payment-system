@@ -2,6 +2,14 @@
 
 namespace App\Entities;
 
+/**
+ * Class Secret
+ *
+ * @property string $code
+ * @property string $hash
+ *
+ * @package App\Entities
+ */
 class Secret
 {
     private $code;

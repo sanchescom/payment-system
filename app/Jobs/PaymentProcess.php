@@ -11,16 +11,16 @@ use Illuminate\Foundation\Bus\Dispatchable;
 
 class PaymentProcess implements ShouldQueue
 {
-    use Dispatchable,
-        InteractsWithQueue,
-        Queueable,
-        SerializesModels;
+	use Dispatchable,
+		InteractsWithQueue,
+		Queueable,
+		SerializesModels;
 
-    public $payment;
+	public $payment;
 
 
-    public function __construct(Payment $payment)
-    {
-        $this->payment = $payment;
-    }
+	public function __construct(Payment $payment)
+	{
+		$this->payment = $payment;
+	}
 }

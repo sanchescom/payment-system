@@ -8,22 +8,22 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 
 class Controller extends BaseController
 {
-    use ValidatesRequests;
+	use ValidatesRequests;
 
-    private static $user;
-
-
-    /**
-     * @return User
-     */
-    protected function getCurrentUser()
-    {
-        return self::$user;
-    }
+	private static $user;
 
 
-    public static function setUser($user)
-    {
-        self::$user = $user;
-    }
+	/**
+	 * @return User
+	 */
+	protected function getCurrentUser()
+	{
+		return self::$user;
+	}
+
+
+	public static function setUser($user)
+	{
+		self::$user = $user;
+	}
 }

@@ -15,28 +15,28 @@ use App\User;
  */
 class PaymentIncome extends PaymentProcess
 {
-    public function handle(CurrencyConverter $converter)
-    {
-        $user = User::findByAccount($this->payment->payee);
+	public function handle(CurrencyConverter $converter)
+	{
+		$user = User::findByAccount($this->payment->payee);
 
-        $native_pair  = $this->payment->currency . "/" . $user->currency;
-        $default_pair = $this->payment->currency . "/" . Currency::DEFAULT_CURRENCY;
+		$native_pair  = $this->payment->currency . "/" . $user->currency;
+		$default_pair = $this->payment->currency . "/" . Currency::DEFAULT_CURRENCY;
 
-        $native  = $converter->convert($this->payment->date, $native_pair, $this->payment->amount);
-        $default = $converter->convert($this->payment->date, $default_pair, $this->payment->amount);
+		$native  = $converter->convert($this->payment->date, $native_pair, $this->payment->amount);
+		$default = $converter->convert($this->payment->date, $default_pair, $this->payment->amount);
 
-        $user->increaseAmount($native);
+		$user->increaseAmount($native);
 
-        try
-        {
-            $this->payment->setNative($native);
-            $this->payment->setDefault($default);
-            $this->payment->setSuccessStatus();
-            $this->payment->save();
-        }
-        catch (\Exception $exception)
-        {
-            $user->decreaseAmount($native);
-        }
-    }
+		try
+		{
+			$this->payment->setNative($native);
+			$this->payment->setDefault($default);
+			$this->payment->setSuccessStatus();
+			$this->payment->save();
+		}
+		catch (\Exception $exception)
+		{
+			$user->decreaseAmount($native);
+		}
+	}
 }

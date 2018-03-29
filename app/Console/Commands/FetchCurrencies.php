@@ -7,7 +7,7 @@ use App\Services\CurrencyCollector;
 use Illuminate\Console\Command;
 
 /**
- * This
+ * This class console command for fetching user's currencies rates
  *
  * Class FetchCurrencies
  *
