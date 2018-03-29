@@ -27,7 +27,7 @@ docker-compose up -d && docker-compose up
 
 ### POST /users
 
-Create user: http://payment-system.d:8082/api/users
+Create user: http://payment-system.d:8092/api/users
 
 Request body:
 
@@ -58,7 +58,7 @@ Response body:
 
 ### GET /users
 
-Users list: http://payment-system.d:8082/api/users
+Users list: http://payment-system.d:8092/api/users
 
 Response body:
 
@@ -73,7 +73,7 @@ Response body:
 
 ### POST /currencies
 
-Currencies list: http://payment-system.d:8082/api/currencies
+Currencies list: http://payment-system.d:8092/api/currencies
 
 Request body:
 
@@ -91,7 +91,7 @@ Response:
 
 ### GET /payments/operations
 
-User payments operations list: http://payment-system.d:8082/api/payments/operations
+User payments operations list: http://payment-system.d:8092/api/payments/operations
 
 Request body:
 
@@ -126,7 +126,7 @@ Response body:
     
 ### POST /payments/recharge
 
-Recharge user account: http://payment-system.d:8082/api/payments/recharge
+Recharge user account: http://payment-system.d:8092/api/payments/recharge
 
 Request body:
 
@@ -142,7 +142,7 @@ Response:
 
 ### POST /payments/transfer
 
-Sending money between users: http://payment-system.d:8082/api/payments/transfer
+Sending money between users: http://payment-system.d:8092/api/payments/transfer
 
 Header:
 
