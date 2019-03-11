@@ -21,8 +21,8 @@ class PaymentsCollection extends BaseCollection
 
     public function getDataForCsv(User $user)
     {
-        return $this->map(function(Payment $payment) use ($user) {
-           return [
+        return $this->map(function (Payment $payment) use ($user) {
+            return [
                 $user->name,
                 $payment->payee,
                 $payment->payer,
@@ -36,7 +36,7 @@ class PaymentsCollection extends BaseCollection
 
     public function getData()
     {
-        return $this->map(function(Payment $payment) {
+        return $this->map(function (Payment $payment) {
             return [
                 'id'       => $payment->id,
                 'payee'    => $payment->payee,

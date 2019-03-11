@@ -37,14 +37,10 @@ class FetchCurrencies extends Command
 
         $bar = $this->output->createProgressBar($currencies->count());
 
-        foreach ($currencies as $currency)
-        {
-            try
-            {
+        foreach ($currencies as $currency) {
+            try {
                 $this->collector->create($currency);
-            }
-            catch (\Exception $exception)
-            {
+            } catch (\Exception $exception) {
                 $this->error($exception->getMessage());
             }
             $bar->advance();

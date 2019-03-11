@@ -5,7 +5,7 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": ">=5.6.4",
+        "php": ">=7.2.11",
         "florianv/laravel-swap": "^1.2",
         "laravel/framework": "5.4.*",
         "laravel/tinker": "~1.0",
@@ -17,7 +17,9 @@
         "barryvdh/laravel-ide-helper": "^2.4",
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "~5.7"
+        "phpunit/phpunit": "~5.7",
+        "phpmd/phpmd": "^2.6",
+        "squizlabs/php_codesniffer": "^3.4"
     },
     "autoload": {
         "classmap": [
@@ -45,7 +47,12 @@
         ],
         "post-update-cmd": [
             "Illuminate\\Foundation\\ComposerScripts::postUpdate"
-        ]
+        ],
+        "require-dev": {
+        },
+        "check-mess": "./vendor/bin/phpmd ./app text codesize,unusedcode,naming",
+        "check-style": "./vendor/bin/phpcs -p --standard=PSR2 ./app",
+        "fix-style": "./vendor/bin/phpcbf --standard=PSR2 ./app"
     },
     "config": {
         "preferred-install": "dist",

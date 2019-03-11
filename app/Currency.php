@@ -17,17 +17,17 @@ use Carbon\Carbon;
  */
 class Currency extends BaseModel
 {
-	const DEFAULT_CURRENCY = 'USD';
+    const DEFAULT_CURRENCY = 'USD';
 
-	protected $fillable = [
-		'date',
-		'rate',
-		'currency',
-	];
+    protected $fillable = [
+        'date',
+        'rate',
+        'currency',
+    ];
 
-	protected $dates = [
-		'created_at',
-		'updated_at',
-		'date',
-	];
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'date',
+    ];
 }

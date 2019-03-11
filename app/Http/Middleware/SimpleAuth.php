@@ -9,35 +9,32 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-
 class SimpleAuth
 {
 
-	/**
-	 * Handle an incoming request.
-	 *
-	 * @param  Request $request
-	 * @param  \Closure $next
-	 * @return mixed
-	 */
-	public function handle($request, Closure $next)
-	{
-		$email = $request->header('Authorization');
+    /**
+     * Handle an incoming request.
+     *
+     * @param  Request $request
+     * @param  \Closure $next
+     * @return mixed
+     */
+    public function handle($request, Closure $next)
+    {
+        $email = $request->header('Authorization');
 
-		if (empty($email))
-		{
-			throw new BadRequestHttpException('Missing user email');
-		}
+        if (empty($email)) {
+            throw new BadRequestHttpException('Missing user email');
+        }
 
-		$user = User::findByEmail($email);
+        $user = User::findByEmail($email);
 
-		if ($user == null)
-		{
-			throw new AccessDeniedHttpException('Access denied');
-		}
+        if ($user == null) {
+            throw new AccessDeniedHttpException('Access denied');
+        }
 
-		Controller::setUser($user);
+        Controller::setUser($user);
 
-		return $next($request);
-	}
+        return $next($request);
+    }
 }

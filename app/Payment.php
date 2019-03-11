@@ -23,111 +23,111 @@ use Carbon\Carbon;
  */
 class Payment extends BaseModel
 {
-	const PROCESSING_STATUS = 1;
-	const SUCCESSFUL_STATUS = 2;
-	const FAILED_STATUS = 3;
+    const PROCESSING_STATUS = 1;
+    const SUCCESSFUL_STATUS = 2;
+    const FAILED_STATUS = 3;
 
-	const INCOME_DIRECTION = 1;
-	const SPEND_DIRECTION = 2;
+    const INCOME_DIRECTION = 1;
+    const SPEND_DIRECTION = 2;
 
-	const NATIVE_DYNAMIC_SUM_FIELD = 'native_sum';
-	const DEFAULT_DYNAMIC_SUM_FIELD = 'default_sum';
+    const NATIVE_DYNAMIC_SUM_FIELD = 'native_sum';
+    const DEFAULT_DYNAMIC_SUM_FIELD = 'default_sum';
 
-	protected $fillable = [
-		'payee',
-		'amount',
-		'currency',
-	];
+    protected $fillable = [
+        'payee',
+        'amount',
+        'currency',
+    ];
 
-	protected $guarded = [
-		'type',
-		'payer',
-		'status',
-		'direction',
-		'native',
-		'default',
-		'date',
-	];
+    protected $guarded = [
+        'type',
+        'payer',
+        'status',
+        'direction',
+        'native',
+        'default',
+        'date',
+    ];
 
-	protected $dates = [
-		'date',
-	];
-
-
-	public function newCollection(array $models = [])
-	{
-		return new PaymentsCollection($models);
-	}
+    protected $dates = [
+        'date',
+    ];
 
 
-	public function setProcessingStatus()
-	{
-		$this->status = self::PROCESSING_STATUS;
-	}
+    public function newCollection(array $models = [])
+    {
+        return new PaymentsCollection($models);
+    }
 
 
-	public function setSuccessStatus()
-	{
-		$this->status = self::SUCCESSFUL_STATUS;
-	}
+    public function setProcessingStatus()
+    {
+        $this->status = self::PROCESSING_STATUS;
+    }
 
 
-	public function setIncomeDirection()
-	{
-		$this->type = self::INCOME_DIRECTION;
-	}
+    public function setSuccessStatus()
+    {
+        $this->status = self::SUCCESSFUL_STATUS;
+    }
 
 
-	public function setSpendDirection()
-	{
-		$this->type = self::SPEND_DIRECTION;
-	}
+    public function setIncomeDirection()
+    {
+        $this->type = self::INCOME_DIRECTION;
+    }
 
 
-	public function setDate($date)
-	{
-		$this->date = $date;
-	}
+    public function setSpendDirection()
+    {
+        $this->type = self::SPEND_DIRECTION;
+    }
 
 
-	public function setPayer($payer)
-	{
-		$this->payer = $payer;
-	}
+    public function setDate($date)
+    {
+        $this->date = $date;
+    }
 
 
-	public function setNative($native)
-	{
-		$this->native = $native;
-	}
+    public function setPayer($payer)
+    {
+        $this->payer = $payer;
+    }
 
 
-	public function setDefault($default)
-	{
-		$this->default = $default;
-	}
+    public function setNative($native)
+    {
+        $this->native = $native;
+    }
 
 
-	public function getNativeAttribute()
-	{
-		return $this->attributeGetterConverterIntegerToDouble('native');
-	}
+    public function setDefault($default)
+    {
+        $this->default = $default;
+    }
 
 
-	public function setNativeAttribute($value)
-	{
-		$this->attributeSetterConverterDoubleToInteger('native', $value);
-	}
+    public function getNativeAttribute()
+    {
+        return $this->attributeGetterConverterIntegerToDouble('native');
+    }
 
 
-	public function getDefaultAttribute()
-	{
-		return $this->attributeGetterConverterIntegerToDouble('default');
-	}
+    public function setNativeAttribute($value)
+    {
+        $this->attributeSetterConverterDoubleToInteger('native', $value);
+    }
 
 
-	public function setDefaultAttribute($value)
-	{
-		$this->attributeSetterConverterDoubleToInteger('default', $value);
-	}
+    public function getDefaultAttribute()
+    {
+        return $this->attributeGetterConverterIntegerToDouble('default');
+    }
+
+
+    public function setDefaultAttribute($value)
+    {
+        $this->attributeSetterConverterDoubleToInteger('default', $value);
+    }
 }
