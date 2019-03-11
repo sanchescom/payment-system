@@ -54,7 +54,6 @@ class User extends BaseModel
         return self::query()->where('email', $email)->first();
     }
 
-
     /**
      * @param $account
      * @return User|\Illuminate\Database\Eloquent\Builder|Model
@@ -64,20 +63,23 @@ class User extends BaseModel
         return self::query()->where('account', $account)->first();
     }
 
-
+    /**
+     * @param $amount
+     */
     public function increaseAmount($amount)
     {
         $this->amount = $this->amount + $amount;
         $this->save();
     }
 
-
+    /**
+     * @param $amount
+     */
     public function decreaseAmount($amount)
     {
         $this->amount = $this->amount - $amount;
         $this->save();
     }
-
 
     /**
      * We can set account only if wasn't set before
@@ -94,7 +96,6 @@ class User extends BaseModel
         $this->setAttribute('account', $account);
     }
 
-
     /**
      * We use getter of attributes for access to account because it private attribute
      *
@@ -105,19 +106,25 @@ class User extends BaseModel
         return $this->getAttribute('account');
     }
 
-
+    /**
+     * @param $account
+     */
     public function setSecret($account)
     {
         $this->setAttribute('secret', $account);
     }
 
-
+    /**
+     * @return mixed
+     */
     public function getSecret()
     {
         return $this->getAttribute('secret');
     }
 
-
+    /**
+     * @return array
+     */
     public function getData()
     {
         return [

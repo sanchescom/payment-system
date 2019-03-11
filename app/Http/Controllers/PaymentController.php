@@ -8,6 +8,7 @@ use App\Entities\Secret;
 use App\Exceptions\SystemErrorException;
 use App\Jobs\PaymentIncome;
 use App\Jobs\PaymentSpend;
+use App\Http\Requests\Payment as PaymentRequest;
 use App\Payment;
 use App\Repositories\PaymentRepository;
 use App\Services\AccountProcessor;
@@ -23,31 +24,30 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PaymentController extends Controller
 {
-    public function transferMoney(Request $request, CurrencyConverter $converter, AccountProcessor $processor)
-    {
-        $this->validatePayment($request);
-
+    public function transferMoney(
+        PaymentRequest $request,
+        Payment $payment,
+        CurrencyConverter $converter,
+        AccountProcessor $processor
+    ) {
         $user = $this->getCurrentUser();
 
-        $currency = $request->get('currency');
-        $amount   = $request->get('amount');
-        $payee    = $request->get('payee');
-
-        $this->validate(
-            $request,
-            [
-                'currency' => 'in:' . $user->currency . ',' . $processor->getCurrency($payee),
+        $this->validate($request, [
+                'currency' => 'in:' . $user->currency . ',' . $processor->getCurrency($request->payee),
                 'payee'    => 'not_in:' . $user->getAccount(),
             ]
         );
 
-        $converted = $converter->convert(Carbon::now(), $currency . "/" . $user->currency, $amount);
+        $converted = $converter->convert(
+            Carbon::now(),
+            sprintf('%s/%s', $request->currency, $user->currency),
+            $request->amount
+        );
 
         $this->checkSecret($request, $user);
         $this->checkFounds($converted, $user);
 
         try {
-            $payment = new Payment();
             $payment->fill($request->all());
             $payment->setDate(Carbon::now()->toDateString());
             $payment->setPayer($user->getAccount());
@@ -62,12 +62,10 @@ class PaymentController extends Controller
             throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Transaction failed', $exception);
         }
 
-        return response()->json(
-            [
+        return response()->json([
             'data' => $payment->toArray(),
-            ],
-            Response::HTTP_OK
-        );
+        ],
+        Response::HTTP_OK);
     }
 
 

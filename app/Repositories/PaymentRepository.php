@@ -39,14 +39,14 @@ class PaymentRepository
 
     /**
      * @param User $user
-     * @param Carbon|null $from_date
-     * @param Carbon|null $to_date
+     * @param Carbon|null $fromDate
+     * @param Carbon|null $toDate
      * @return PaymentsCollection|Payment[]|Builder[]
      */
     public static function getSumForUserByPeriodGroupedByCurrencies(
         User $user,
-        Carbon $from_date = null,
-        Carbon $to_date = null
+        Carbon $fromDate = null,
+        Carbon $toDate = null
     ) {
         $builder = Payment::query();
 
@@ -55,8 +55,8 @@ class PaymentRepository
             [
                 'account' => $user->getAccount(),
                 'date'    => [
-                    'from' => $from_date ? $from_date->format('Y-m-d') : null,
-                    'to'   => $to_date ? $to_date->format('Y-m-d') : null,
+                    'from' => $fromDate ? $fromDate->format('Y-m-d') : null,
+                    'to'   => $toDate ? $toDate->format('Y-m-d') : null,
                 ],
             ]
         );

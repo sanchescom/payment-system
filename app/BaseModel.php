@@ -3,11 +3,11 @@
 namespace App;
 
 use App\Traits\PrivateAttributes;
+use Illuminate\Database\Eloquent\Model;
 
-class BaseModel extends \Eloquent
+class BaseModel extends Model
 {
     use PrivateAttributes;
-
 
     /**
      * Mutator for converting from float to integer

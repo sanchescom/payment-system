@@ -4,18 +4,24 @@ namespace App\Entities;
 
 /**
  * Class Secret
- *
- * @property string $code
- * @property string $hash
- *
  * @package App\Entities
  */
 class Secret
 {
+    /**
+     * @var string
+     */
     private $code;
+
+    /**
+     * @var string
+     */
     private $hash;
 
 
+    /**
+     * @return Secret
+     */
     public static function create()
     {
         $secret = new self();
@@ -25,19 +31,26 @@ class Secret
         return $secret;
     }
 
-
+    /**
+     * @param $code
+     * @return string
+     */
     public static function hash($code)
     {
         return md5(md5($code));
     }
 
-
+    /**
+     * @return string
+     */
     public function getCode()
     {
         return $this->code;
     }
 
-
+    /**
+     * @return string
+     */
     public function getHash()
     {
         return $this->hash;
