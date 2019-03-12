@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Services\AccountProcessor;
+use App\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -10,10 +12,12 @@ use Illuminate\Foundation\Http\FormRequest;
  * @property string $currency
  * @property double $amount
  * @property string $payee
+ * @property string $secret
+ * @method User user($guard = null)
  *
  * @package App\Http\Requests
  */
-class Payment extends FormRequest
+class TransferMoneyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -32,10 +36,16 @@ class Payment extends FormRequest
      */
     public function rules()
     {
+        /** @var AccountProcessor $accountProcessor */
+        $accountProcessor = resolve('AccountProcessor');
+
+        $userCurrency = $this->user()->currency;
+        $payeeCurrency = $accountProcessor->getCurrency($this->payee);
+
         return [
-            'payee'    => 'required|max:14|exists:users,account',
+            'payee'    => 'required|max:14|exists:users,account|not_in:' . $this->user()->getAccount(),
             'amount'   => 'required|numeric',
-            'currency' => 'required|max:3',
+            'currency' => 'required|max:3|in:' . $userCurrency . ',' . $payeeCurrency,
         ];
     }
 }

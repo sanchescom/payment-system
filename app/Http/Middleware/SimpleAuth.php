@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Controllers\Controller;
 use App\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -11,7 +10,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class SimpleAuth
 {
-
     /**
      * Handle an incoming request.
      *
@@ -33,7 +31,9 @@ class SimpleAuth
             throw new AccessDeniedHttpException('Access denied');
         }
 
-        Controller::setUser($user);
+        $request->setUserResolver(function () use ($user) {
+            return $user;
+        });
 
         return $next($request);
     }

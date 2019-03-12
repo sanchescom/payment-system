@@ -8,15 +8,15 @@ use App\Entities\Secret;
 use App\Exceptions\SystemErrorException;
 use App\Jobs\PaymentIncome;
 use App\Jobs\PaymentSpend;
-use App\Http\Requests\Payment as PaymentRequest;
+use App\Http\Requests\TransferMoneyRequest;
 use App\Payment;
 use App\Repositories\PaymentRepository;
-use App\Services\AccountProcessor;
 use App\Services\CurrencyConverter;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
 use League\Csv\CannotInsertRecord;
 use League\Csv\Writer;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -24,38 +24,35 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PaymentController extends Controller
 {
+    /**
+     * @param TransferMoneyRequest $request
+     * @param Payment $payment
+     * @param CurrencyConverter $converter
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function transferMoney(
-        PaymentRequest $request,
+        TransferMoneyRequest $request,
         Payment $payment,
-        CurrencyConverter $converter,
-        AccountProcessor $processor
+        CurrencyConverter $converter
     ) {
-        $user = $this->getCurrentUser();
-
-        $this->validate($request, [
-                'currency' => 'in:' . $user->currency . ',' . $processor->getCurrency($request->payee),
-                'payee'    => 'not_in:' . $user->getAccount(),
-            ]
-        );
-
         $converted = $converter->convert(
             Carbon::now(),
-            sprintf('%s/%s', $request->currency, $user->currency),
+            currency_pair($request->currency, $request->user()->currency),
             $request->amount
         );
 
-        $this->checkSecret($request, $user);
-        $this->checkFounds($converted, $user);
+        $this->checkSecret($request);
+        $this->checkFounds($request, $converted);
 
         try {
             $payment->fill($request->all());
             $payment->setDate(Carbon::now()->toDateString());
-            $payment->setPayer($user->getAccount());
+            $payment->setPayer($request->user()->getAccount());
             $payment->setProcessingStatus();
             $payment->setSpendDirection();
             $payment->save();
 
-            $user->decreaseAmount($converted);
+            $request->user()->decreaseAmount($converted);
 
             PaymentSpend::dispatch($payment);
         } catch (\Exception $exception) {
@@ -187,17 +184,17 @@ class PaymentController extends Controller
     }
 
 
-    private function checkSecret(Request $request, User $user)
+    private function checkSecret(TransferMoneyRequest $request)
     {
-        if (Secret::hash($request->get('secret')) !== $user->getSecret()) {
+        if (Secret::hash($request->get('secret')) !== $request->user()->getSecret()) {
             throw new AccessDeniedHttpException('Access denied');
         }
     }
 
 
-    private function checkFounds($amount, User $user)
+    private function checkFounds(TransferMoneyRequest $request, $amount)
     {
-        if ($amount > $user->amount) {
+        if ($amount > $request->user()->amount) {
             throw new SystemErrorException('Insufficient funds');
         }
     }
