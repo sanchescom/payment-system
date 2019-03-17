@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Collections\PaymentsCollection;
 use App\Currency;
+use App\Entities\PaymentOperation;
 use App\Entities\Secret;
 use App\Exceptions\PaymentOperationsFailed;
 use App\Exceptions\RechargeAccountFailed;
@@ -98,19 +99,14 @@ class PaymentController extends Controller
 
     public function getAllOperations(PaymentOperationsRequest $request)
     {
-        /**
-         * @var User $user
-         * @var PaymentsCollection|Payment[] $payments
-         * @var PaymentsCollection|Payment[] $sums
-         */
-        list($user, $payments, $sums) = $this->getOperations($request);
+        $paymentOperations = $this->getOperations($request);
 
         return response()->json(
             [
-            'data' => $payments->getData(),
+            'data' => $paymentOperations->getPayments()->getData(),
             'meta' => [
-                'user' => $user->getData(),
-                'sums' => $sums->getNativeAndDefaultSum(),
+                'user' => $paymentOperations->getUser()->getData(),
+                'sums' => $paymentOperations->getSummaries()->getNativeAndDefaultSum(),
             ],
             ],
             Response::HTTP_OK
@@ -152,14 +148,14 @@ class PaymentController extends Controller
 
     /**
      * @param PaymentOperationsRequest $request
-     * @return array
+     * @return PaymentOperation
      */
     private function getOperations(PaymentOperationsRequest $request)
     {
         try {
             $user = User::findByAccount($request->getAccount());
 
-            return [
+            return PaymentOperation::make(
                 $user,
                 PaymentRepository::getAllForUserOnPeriod(
                     $user,
@@ -170,8 +166,8 @@ class PaymentController extends Controller
                     $user,
                     $request->getFromDate(),
                     $request->getToDate()
-                ),
-            ];
+                )
+            );
         } catch (\Exception $exception) {
             throw new PaymentOperationsFailed($exception);
         }

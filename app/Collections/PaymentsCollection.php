@@ -18,6 +18,10 @@ class PaymentsCollection extends BaseCollection
         ];
     }
 
+    public function getNativeSum()
+    {
+
+    }
 
     public function getDataForCsv(User $user)
     {
@@ -32,7 +36,6 @@ class PaymentsCollection extends BaseCollection
             ];
         });
     }
-
 
     public function getData()
     {
