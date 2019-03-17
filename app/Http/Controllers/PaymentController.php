@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Collections\PaymentsCollection;
 use App\Currency;
 use App\Entities\Secret;
+use App\Exceptions\RechargeAccountFailed;
 use App\Exceptions\SystemErrorException;
+use App\Exceptions\TransferMoneyFailed;
 use App\Http\Requests\RechargeAccountRequest;
 use App\Http\Resources\PaymentResource;
 use App\Jobs\PaymentIncome;
@@ -60,7 +62,7 @@ class PaymentController extends Controller
 
             PaymentSpend::dispatch($payment);
         } catch (\Exception $exception) {
-            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Transaction failed', $exception);
+            throw new TransferMoneyFailed($exception);
         }
 
         return PaymentResource::make($payment);
@@ -86,7 +88,7 @@ class PaymentController extends Controller
 
             PaymentIncome::dispatch($payment);
         } catch (\Exception $exception) {
-            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Unsuccessful recharging', $exception);
+            throw new RechargeAccountFailed($exception);
         }
 
         return response()->noContent();
