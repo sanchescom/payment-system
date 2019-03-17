@@ -64,4 +64,12 @@ class TransferMoneyRequest extends FormRequest
     {
         return $this->amount;
     }
+
+    /**
+     * @return string
+     */
+    public function getSecret(): string
+    {
+        return $this->secret;
+    }
 }

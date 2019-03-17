@@ -16,7 +16,7 @@ class PaymentRepository
      * @param Carbon|null $to_date
      * @return PaymentsCollection|Payment[]|Builder[]
      */
-    public static function getForUserByPeriod(User $user, Carbon $from_date = null, Carbon $to_date = null)
+    public static function getAllForUserOnPeriod(User $user, Carbon $from_date = null, Carbon $to_date = null)
     {
         $builder = Payment::query();
 
@@ -43,7 +43,7 @@ class PaymentRepository
      * @param Carbon|null $toDate
      * @return PaymentsCollection|Payment[]|Builder[]
      */
-    public static function getSumForUserByPeriodGroupedByCurrencies(
+    public static function getSummariesForUserOnPeriod(
         User $user,
         Carbon $fromDate = null,
         Carbon $toDate = null

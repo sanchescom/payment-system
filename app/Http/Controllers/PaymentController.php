@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Collections\PaymentsCollection;
 use App\Currency;
 use App\Entities\Secret;
+use App\Exceptions\PaymentOperationsFailed;
 use App\Exceptions\RechargeAccountFailed;
 use App\Exceptions\SystemErrorException;
 use App\Exceptions\TransferMoneyFailed;
+use App\Http\Requests\PaymentOperationsRequest;
 use App\Http\Requests\RechargeAccountRequest;
 use App\Http\Resources\PaymentResource;
 use App\Jobs\PaymentIncome;
@@ -94,7 +96,7 @@ class PaymentController extends Controller
         return response()->noContent();
     }
 
-    public function getAllOperations(Request $request)
+    public function getAllOperations(PaymentOperationsRequest $request)
     {
         /**
          * @var User $user
@@ -115,7 +117,7 @@ class PaymentController extends Controller
         );
     }
 
-    public function downloadAllOperations(Request $request)
+    public function downloadAllOperations(PaymentOperationsRequest $request)
     {
         /**
          * @var User $user
@@ -148,53 +150,47 @@ class PaymentController extends Controller
         );
     }
 
-    private function getOperations(Request $request)
+    /**
+     * @param PaymentOperationsRequest $request
+     * @return array
+     */
+    private function getOperations(PaymentOperationsRequest $request)
     {
-        $this->validate(
-            $request,
-            [
-                'account'   => 'required|max:14',
-                'from_date' => 'date',
-                'to_date'   => 'date',
-            ]
-        );
-
         try {
-            $account = $request->get('account');
-            $from_date = $request->get('from_date');
-            $to_date = $request->get('to_date');
-
-            $user = User::findByAccount($account);
-
-            if ($from_date) {
-                $from_date = Carbon::createFromFormat('Y-m-d', $from_date);
-            }
-
-            if ($to_date) {
-                $to_date = Carbon::createFromFormat('Y-m-d', $to_date);
-            }
+            $user = User::findByAccount($request->getAccount());
 
             return [
                 $user,
-                PaymentRepository::getForUserByPeriod($user, $from_date, $to_date),
-                PaymentRepository::getSumForUserByPeriodGroupedByCurrencies($user, $from_date, $to_date),
+                PaymentRepository::getAllForUserOnPeriod(
+                    $user,
+                    $request->getFromDate(),
+                    $request->getToDate()
+                ),
+                PaymentRepository::getSummariesForUserOnPeriod(
+                    $user,
+                    $request->getFromDate(),
+                    $request->getToDate()
+                ),
             ];
         } catch (\Exception $exception) {
-            throw new HttpException(
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                'Problem with viewing list operations',
-                $exception
-            );
+            throw new PaymentOperationsFailed($exception);
         }
     }
 
+    /**
+     * @param TransferMoneyRequest $request
+     */
     private function checkSecret(TransferMoneyRequest $request)
     {
-        if (Secret::hash($request->get('secret')) !== $request->user()->getSecret()) {
+        if (Secret::hash($request->getSecret()) !== $request->user()->getSecret()) {
             throw new AccessDeniedHttpException('Access denied');
         }
     }
 
+    /**
+     * @param TransferMoneyRequest $request
+     * @param $amount
+     */
     private function checkFounds(TransferMoneyRequest $request, $amount)
     {
         if ($amount > $request->user()->amount) {

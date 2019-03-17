@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Services\AccountProcessor;
-use App\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
