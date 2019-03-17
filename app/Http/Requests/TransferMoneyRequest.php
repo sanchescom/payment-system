@@ -48,4 +48,20 @@ class TransferMoneyRequest extends FormRequest
             'currency' => 'required|max:3|in:' . $userCurrency . ',' . $payeeCurrency,
         ];
     }
+
+    /**
+     * @return string
+     */
+    public function getCurrencyPair()
+    {
+        return currency_pair($this->currency, $this->user()->currency);
+    }
+
+    /**
+     * @return float
+     */
+    public function getAmount(): float
+    {
+        return $this->amount;
+    }
 }

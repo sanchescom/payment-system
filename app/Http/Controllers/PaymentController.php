@@ -6,6 +6,8 @@ use App\Collections\PaymentsCollection;
 use App\Currency;
 use App\Entities\Secret;
 use App\Exceptions\SystemErrorException;
+use App\Http\Requests\RechargeAccountRequest;
+use App\Http\Resources\PaymentResource;
 use App\Jobs\PaymentIncome;
 use App\Jobs\PaymentSpend;
 use App\Http\Requests\TransferMoneyRequest;
@@ -26,19 +28,21 @@ class PaymentController extends Controller
 {
     /**
      * @param TransferMoneyRequest $request
-     * @param Payment $payment
      * @param CurrencyConverter $converter
-     * @return \Illuminate\Http\JsonResponse
+     * @param Payment $payment
+     * @param Carbon $carbon
+     * @return PaymentResource
      */
     public function transferMoney(
         TransferMoneyRequest $request,
+        CurrencyConverter $converter,
         Payment $payment,
-        CurrencyConverter $converter
+        Carbon $carbon
     ) {
         $converted = $converter->convert(
-            Carbon::now(),
-            currency_pair($request->currency, $request->user()->currency),
-            $request->amount
+            $carbon,
+            $request->getCurrencyPair(),
+            $request->getAmount()
         );
 
         $this->checkSecret($request);
@@ -46,7 +50,7 @@ class PaymentController extends Controller
 
         try {
             $payment->fill($request->all());
-            $payment->setDate(Carbon::now()->toDateString());
+            $payment->setDate($carbon->toDateString());
             $payment->setPayer($request->user()->getAccount());
             $payment->setProcessingStatus();
             $payment->setSpendDirection();
@@ -59,21 +63,23 @@ class PaymentController extends Controller
             throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Transaction failed', $exception);
         }
 
-        return response()->json([
-            'data' => $payment->toArray(),
-        ],
-        Response::HTTP_OK);
+        return PaymentResource::make($payment);
     }
 
-
-    public function rechargeAccount(Request $request)
-    {
-        $this->validatePayment($request);
-
+    /**
+     * @param RechargeAccountRequest $request
+     * @param Payment $payment
+     * @param Carbon $carbon
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function rechargeAccount(
+        RechargeAccountRequest $request,
+        Payment $payment,
+        Carbon $carbon
+    ) {
         try {
-            $payment = new Payment();
             $payment->fill($request->all());
-            $payment->setDate(Carbon::now()->toDateString());
+            $payment->setDate($carbon->toDateString());
             $payment->setProcessingStatus();
             $payment->setIncomeDirection();
             $payment->save();
@@ -83,9 +89,8 @@ class PaymentController extends Controller
             throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Unsuccessful recharging', $exception);
         }
 
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return response()->noContent();
     }
-
 
     public function getAllOperations(Request $request)
     {
@@ -107,7 +112,6 @@ class PaymentController extends Controller
             Response::HTTP_OK
         );
     }
-
 
     public function downloadAllOperations(Request $request)
     {
@@ -141,7 +145,6 @@ class PaymentController extends Controller
             ]
         );
     }
-
 
     private function getOperations(Request $request)
     {
@@ -183,7 +186,6 @@ class PaymentController extends Controller
         }
     }
 
-
     private function checkSecret(TransferMoneyRequest $request)
     {
         if (Secret::hash($request->get('secret')) !== $request->user()->getSecret()) {
@@ -191,24 +193,10 @@ class PaymentController extends Controller
         }
     }
 
-
     private function checkFounds(TransferMoneyRequest $request, $amount)
     {
         if ($amount > $request->user()->amount) {
             throw new SystemErrorException('Insufficient funds');
         }
-    }
-
-
-    private function validatePayment(Request $request)
-    {
-        $this->validate(
-            $request,
-            [
-                'payee'    => 'required|max:14|exists:users,account',
-                'amount'   => 'required|numeric',
-                'currency' => 'required|max:3',
-            ]
-        );
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class Payment extends JsonResource
+class UserResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,6 +14,6 @@ class Payment extends JsonResource
      */
     public function toArray($request)
     {
-        return [];
+        return parent::toArray($request);
     }
 }
