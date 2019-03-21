@@ -6,8 +6,10 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Class RechargeAccountRequest.
+ *
+ * @property array $currencies
  */
-class RechargeAccountRequest extends FormRequest
+class CurrencyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,9 +29,9 @@ class RechargeAccountRequest extends FormRequest
     public function rules()
     {
         return [
-            'payee'    => 'required|max:14|exists:users,account',
-            'amount'   => 'required|numeric',
-            'currency' => 'required|max:3',
+            'currencies.*.date'     => 'required|date',
+            'currencies.*.rate'     => 'required|numeric',
+            'currencies.*.currency' => 'required|max:3',
         ];
     }
 }

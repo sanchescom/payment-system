@@ -3,33 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Currency;
-use Illuminate\Http\Request;
+use App\Exceptions\CurrencyUploadingError;
+use App\Http\Requests\CurrencyRequest;
 use Illuminate\Http\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
+/**
+ * Class CurrencyController.
+ */
 class CurrencyController extends Controller
 {
-    public function uploadRates(Request $request)
+    /**
+     * @param CurrencyRequest $request
+     *
+     * @return Response
+     */
+    public function uploadRates(CurrencyRequest $request)
     {
-        $this->validate(
-            $request,
-            [
-                'currencies.*.date'     => 'required|date',
-                'currencies.*.rate'     => 'required|numeric',
-                'currencies.*.currency' => 'required|max:3',
-            ]
-        );
-
         try {
-            $currencies = $request->get('currencies');
-
-            foreach ($currencies as $currency) {
+            foreach ($request->currencies as $currency) {
                 Currency::query()->updateOrCreate($currency);
             }
         } catch (\Exception $exception) {
-            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Currencies uploading failed', $exception);
+            throw new CurrencyUploadingError($exception);
         }
 
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return response()->noContent();
     }
 }

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Collections\PaymentsCollection;
-use App\Currency;
 use App\Entities\PaymentOperation;
 use App\Entities\Secret;
 use App\Exceptions\PaymentOperationsFailed;
@@ -19,15 +17,12 @@ use App\Http\Requests\TransferMoneyRequest;
 use App\Payment;
 use App\Repositories\PaymentRepository;
 use App\Services\CurrencyConverter;
+use App\Services\PaymentOperationWriter;
 use App\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use League\Csv\CannotInsertRecord;
-use League\Csv\Writer;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PaymentController extends Controller
 {
@@ -36,6 +31,7 @@ class PaymentController extends Controller
      * @param CurrencyConverter $converter
      * @param Payment $payment
      * @param Carbon $carbon
+     *
      * @return PaymentResource
      */
     public function transferMoney(
@@ -75,6 +71,7 @@ class PaymentController extends Controller
      * @param RechargeAccountRequest $request
      * @param Payment $payment
      * @param Carbon $carbon
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function rechargeAccount(
@@ -113,37 +110,26 @@ class PaymentController extends Controller
         );
     }
 
-    public function downloadAllOperations(PaymentOperationsRequest $request)
-    {
-        /**
-         * @var User $user
-         * @var PaymentsCollection|Payment[] $payments
-         * @var PaymentsCollection|Payment[] $sums
-         */
-        list($user, $payments, $sums) = $this->getOperations($request);
-
-        $csv = Writer::createFromFileObject(new \SplTempFileObject());
+    public function downloadAllOperations(
+        PaymentOperationsRequest $operationsRequest,
+        PaymentOperationWriter $operationWriter
+    ) {
+        $csv = '';
 
         try {
-            $csv->insertAll($payments->getDataForCsv($user)->toArray());
-            $csv->insertOne([
-                Currency::DEFAULT_CURRENCY . ':' . $sums->getNativeAndDefaultSum()[Payment::DEFAULT_DYNAMIC_SUM_FIELD]
-            ]);
-            $csv->insertOne([
-                $user->currency . ':' . $sums->getNativeAndDefaultSum()[Payment::NATIVE_DYNAMIC_SUM_FIELD]
-            ]);
-        } catch (CannotInsertRecord | \TypeError $e) {
+            $csv = $operationWriter->insertPaymentOperation(
+                $this->getOperations($operationsRequest)
+            );
+        } catch (\TypeError $e) {
             $e->getMessage();
         }
 
-        return response()->make(
-            (string) $csv,
-            200,
-            [
+        return response()
+            ->make((string) $csv, Response::HTTP_OK)
+            ->withHeaders([
                 'Content-Type'        => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => 'attachment; filename="payments.csv"',
-            ]
-        );
+            ]);
     }
 
     /**
